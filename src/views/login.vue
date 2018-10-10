@@ -1,7 +1,5 @@
 <template>
-  <div id="login">
-    ssssssss
-  </div>
+  
 </template>
 <script>
   export default {

@@ -8,7 +8,7 @@ export default new Router({
 routes: [
   {
     path:'/login',
-    name:'main',
+    name:'login',
     component:login
   },
   {
