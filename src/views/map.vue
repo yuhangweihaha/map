@@ -143,7 +143,7 @@
     position: relative;
   }
   .images{
-    width: 31.6%;
+    width: 35.6%;
     height: 117%;
     position: absolute;
     top: 16px;
