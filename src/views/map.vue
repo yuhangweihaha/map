@@ -27,8 +27,8 @@
         <div class="map-BottomNavigation-left-content"> | 操作提示：请按照相关提示正确操作</div>
        <!--右侧坐标+比例尺-->
         <div class="map-BottomNavigation-right">
-          <div class="map-BottomNavigation-right-coordinate"> | 坐标：{{coordinate1}}{{coordinate2}}</div>
-
+          <div class="map-BottomNavigation-right-coordinate"> | 坐标：{{coordinate1}},{{coordinate2}}</div>
+          <div class="map-BottomNavigation-right-scale"> | 比例尺：{{scales}}</div>
         </div>
       </div>
     </div>
@@ -48,7 +48,9 @@
         widthData:'78px',
         isTop:true,
         isLeft:true,
-
+        coordinate1:'1238474.3837372',
+        coordinate2:'1238474.3837444',
+        scales:'1:8000',
         // laoyu:require("../assets/images/pic_but1.png"),
           LeftNav:[
             {test:"视图操作",img:require("../assets/images/pic_but1.png")},
@@ -289,9 +291,18 @@
   .map-BottomNavigation-right{
     width: 35%;
     height: 100%;
-    background: salmon;
     position: absolute;
     right: 15px;
-    top: 2px;
+    top: 7px;
+    font-size:12px;
+    color:#fff;
+  }
+  .map-BottomNavigation-right-coordinate{
+    float: left;
+    margin-left: 20%;
+  }
+  .map-BottomNavigation-right-scale{
+    float: left;
+    margin-left: 7%;
   }
 </style>
