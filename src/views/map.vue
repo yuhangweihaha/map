@@ -6,7 +6,17 @@
       <!--按钮-->
       <div class="map-herder-but" @click="mapBut">▼</div>
     </div>
-    <div style="width: 40%;height:30px;background: red"></div>
+    <!--井盖监控功能-->
+    <div class="WellCoverMonitoring" :style="{top:TopData}" v-if="TopDataIf">
+      <ul>
+        <li class="lis1" :style="{color:WellColor,flex:'1.1'}"><img src="../assets/images/pic_connected.png"> {{LinkState}}</li>
+        <li style="flex:1.7" @click="Already">已安装：[ {{AlreadyInstalled}} ] 个</li>
+        <li  style="flex:1.3">离线：[ {{OffLine}} ] 个</li>
+        <li style="flex:2">施工打开超时：[ {{ConstructionOpensOvertime}} ] 个</li>
+        <li style="flex: 1.4;">报警：[ {{CallThePolice}} ] 个</li>
+        <li class="CloseWellCoverMonitoring" @click="CloseWellCoverMonitoring"><img src="../assets/images/pic_close.png"></li>
+      </ul>
+    </div>
     <!--左侧导航栏-->
     <div class="map-LeftNavigation" :style="{width: widthData}">
       <div class="map-LeftNavigation-but" @click="MapLeft">▶</div>
@@ -32,6 +42,35 @@
         </div>
       </div>
     </div>
+    <!--井盖详细列表-->
+    <div class="DetailedListOfManholeCovers">
+      <!--右侧按钮滚动条区域-->
+      <div class="DetailedControl">
+        <div class="DetailedContens">
+          <template>
+            <div class="block">
+              <el-slider
+                v-model="value10"
+                vertical
+                height="100px">
+              </el-slider>
+            </div>
+          </template>
+        </div>
+      </div>
+     <!--左侧表格区域-->
+      <div class="DetailedLeft">
+        <!--已安装设备-->
+        <div class="InstalledEquipment ipm">
+          <p style="width: 100%;height: 30px">已安装设备列表</p>
+          <div class="InstalledForm">
+            <p>选择某一行，地图上自动定位到数据</p>
+          </div>
+        </div>
+        <!--报警设备-->
+        <div class="AlarmEquipment ipm"></div>
+      </div>
+    </div>
     <!--地图-->
     <div id="allmap" ref="allmap"></div>
 
@@ -43,16 +82,23 @@
     name: '',
     data () {
       return {
-        image1:'../assets/images/pic_login.jpg',
         heightData:'80px',
         widthData:'78px',
+        TopData:'83px',
         isTop:true,
         isLeft:true,
+        TopDataIf:false,
+        LinkState:'已连接',     /*链接状态*/
+        AlreadyInstalled:'3424',   /*已安装的个数*/
+        OffLine:'0',    /*离线*/
+        ConstructionOpensOvertime:'0',   /*施工打开超时*/
+        WellColor:'#22a36b',
+        CallThePolice:'2',    /*警报*/
         coordinate1:'1238474.3837372',
         coordinate2:'1238474.3837444',
         scales:'1:8000',
-        // laoyu:require("../assets/images/pic_but1.png"),
-          LeftNav:[
+        value10:0,
+        LeftNav:[
             {test:"视图操作",img:require("../assets/images/pic_but1.png")},
             {test:"查询定位",img:require("../assets/images/pic_but3.png")},
             {test:"井盖监控",img:require("../assets/images/pic_but2.png")},
@@ -82,11 +128,13 @@
       mapBut(){
         if(this.isTop){
           this.heightData = 0+'px';
+          this.TopData = 0+'px';
           this.isTop = false;
         }
         else{
           this.isTop = true;
           this.heightData = 80+'px';
+          this.TopData = 83+'px';
         }
       },
       MapLeft(){
@@ -100,9 +148,15 @@
         }
       },
       Leftbut(index){
-        if(index ===2){
-          alert('没错就是我')
+        if(index === 2){
+          this.TopDataIf = true;
         }
+      },
+      CloseWellCoverMonitoring(){
+        this.TopDataIf = false;
+      },
+      Already(){
+
       }
 
     },
@@ -154,14 +208,16 @@
   }
   .map-herder-but{
     width: 72px;
-    height: 12px;
+    height: 8px;
     background: #b4d3fc;
-    font-size: 4px;
+    font-size: 2px;
     position: absolute;
-    bottom: -12px;
+    bottom: -8px;
     left: 47%;
+    line-height: 8px;
     border-radius: 0 0 20px 20px;
     cursor: pointer;
+    box-shadow: -2px 3px 11px #9E9E9E;
   }
   .map-herder-but:hover{
      background: #fdd974;
@@ -196,25 +252,10 @@
   }
   .map-LeftNavigation-li :hover{
     img{
-      width: 60%;
-      height: 80%;
+      width: 50%;
+      height: 70%;
     }
   }
- /* .map-LeftNavigation-li:nth-child(6){
-  background: #305184;
-  }
-  .map-LeftNavigation-li:nth-child(7){
-    background: #305184;
-  }
-  .map-LeftNavigation-li:nth-child(8){
-    background: #305184;
-  }
-  .map-LeftNavigation-li:nth-child(9){
-    background: #305184;
-  }*/
-  /*.map-LeftNavigation-li:nth-child(){*/
-    /*background: #305184;*/
-  /*}*/
 .tb{
   height: 17px;
   width: 100%;
@@ -283,7 +324,7 @@
     cursor: pointer;
   }
   .map-BottomNavigation-left-content{
-   color:#fff;
+    color:#fff;
     font-size: 12px;
     text-indent: -90px;
     line-height: 16px;
@@ -304,5 +345,110 @@
   .map-BottomNavigation-right-scale{
     float: left;
     margin-left: 7%;
+  }
+  .WellCoverMonitoring{
+    width: 613px;
+    height: 38px;
+    background: #e4e4e4;
+    position: absolute;
+    top: 83px;
+    left: 30%;
+    z-index: 9998;
+    -webkit-box-shadow: 0 0 13px 3px;
+    box-shadow: 0 0 19px 1px;
+    border-radius: 0px 0px 10px 10px;
+    ul{
+      width: 100%;
+      height: 100%;
+      display: flex;
+      padding: 0;
+      margin: 0;
+      justify-content: center;
+      align-items: center;
+      li{
+        flex:1;
+        font-size: 12px;
+        list-style: none;
+        color:#2c4586;
+        cursor: pointer;
+      }
+
+    }
+  }
+  .CloseWellCoverMonitoring{
+    cursor: pointer;
+    border-left: 1px solid #5e5e5e;
+  }
+  .lis1{
+    border-right: 1px solid #5e5e5e;
+    line-height: 26px;
+    img{
+      float: left;
+      margin-left: 5px;
+    }
+  }
+  .DetailedListOfManholeCovers{
+    width: 27.5%;
+    height: 86%;
+    position: absolute;
+    right: 1px;
+    top: 10.6%;
+    z-index: 9999;
+    overflow: hidden;
+  }
+  .DetailedControl{
+    height: 100%;
+    width: 27px;
+    float: right;
+    .DetailedContens{
+      height: 310px;
+      width: 100%;
+      background: #1d4173;
+      border-radius: 6px 0 0 6px;
+      box-sizing: border-box;
+      border-left: 1px solid #b4d3fc;
+    }
+  }
+  .DetailedLeft{
+    width: 92%;
+    height: auto;
+  }
+  .ipm{
+    width: 402px;
+    height: 402px;
+    background: #31588d;
+    border-radius:5px;
+    border:1px solid #b4d3fc;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .InstalledEquipment{
+    p{
+      margin: 0;
+      font-size: 15px;
+      color:#fff;
+      font-weight: bold;
+      text-align: left;
+      text-indent: 20px;
+      line-height: 30px;
+    }
+    .InstalledForm{
+      width: 96%;
+      height: 91%;
+      background: #eee;
+      margin-left: 2%;
+      p{
+        width: 100%;
+        height: 33px;
+        background: #dfdfdf;
+        font-weight: normal;
+        text-align: left;
+        text-indent: 14px;
+        color: #000;
+        font-size: 12px;
+        line-height: 33px;
+        border-bottom: 1px solid #bbb;
+      }
+    }
   }
 </style>
