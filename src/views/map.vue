@@ -65,6 +65,30 @@
           <p style="width: 100%;height: 30px">已安装设备列表</p>
           <div class="InstalledForm">
             <p>选择某一行，地图上自动定位到数据</p>
+            <div class="InstalledFormInput">
+              模糊查询：<input type="text">
+              <button class="InstalledFormBut">查询</button>
+            </div>
+            <el-table
+              :data="tableData3"
+              height="300"
+              border
+              style="width: 100%">
+              <el-table-column
+                prop="date"
+                label="日期"
+                width="120">
+              </el-table-column>
+              <el-table-column
+                prop="name"
+                label="姓名"
+                width="120">
+              </el-table-column>
+              <el-table-column
+                prop="address"
+                label="地址">
+              </el-table-column>
+            </el-table>
           </div>
         </div>
         <!--报警设备-->
@@ -108,7 +132,72 @@
             {test:"信息维护",img:require("../assets/images/pic_but7.png")},
             {test:"打印出图",img:require("../assets/images/pic_but8.png")},
             {test:"关于系统",img:require("../assets/images/pic_but9.png")}
-          ]
+          ],
+        tableData3: [{
+          date: '2016-05-03',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄'
+        }, {
+          date: '2016-05-02',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄'
+        }, {
+          date: '2016-05-04',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄'
+        }, {
+          date: '2016-05-01',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄'
+        }, {
+          date: '2016-05-08',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄'
+        }, {
+          date: '2016-05-06',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄'
+        }, {
+          date: '2016-05-07',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄'
+        },
+          {
+            date: '2016-05-07',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1518 弄'
+          },
+          {
+            date: '2016-05-07',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1518 弄'
+          },
+          {
+            date: '2016-05-07',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1518 弄'
+          },
+          {
+            date: '2016-05-07',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1518 弄'
+          },
+          {
+            date: '2016-05-07',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1518 弄'
+          },
+          {
+            date: '2016-05-07',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1518 弄'
+          },
+          {
+            date: '2016-05-07',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1518 弄'
+          }
+        ]
       }
     },
 
@@ -449,6 +538,32 @@
         line-height: 33px;
         border-bottom: 1px solid #bbb;
       }
+      .InstalledFormInput{
+        width: 100%;
+        height: 31px;
+        text-align: left;
+        font-size: 12px;
+        line-height: 31px;
+        text-indent: 14px;
+        input{
+          width: 241px;
+          height: 19px;
+          border:1px solid #a4a4a4;
+          border-radius: 2px;
+          margin-left: 2px;
+        }
+        .InstalledFormBut{
+          width: 53px;
+          height: 20px;
+          border: 1px solid #abc6dd;
+          color: #042271;
+          font-size: 12px;
+          cursor: pointer;
+          margin-left: 4px;
+          border-radius: 2px;
+        }
+      }
     }
+
   }
 </style>
