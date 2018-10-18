@@ -13,7 +13,7 @@
         <li style="flex:1.7" @click="Already">已安装：[ {{AlreadyInstalled}} ] 个</li>
         <li  style="flex:1.3">离线：[ {{OffLine}} ] 个</li>
         <li style="flex:2">施工打开超时：[ {{ConstructionOpensOvertime}} ] 个</li>
-        <li style="flex: 1.4;">报警：[ {{CallThePolice}} ] 个</li>
+        <li style="flex: 1.4;" @click="police">报警：[ {{CallThePolice}} ] 个</li>
         <li class="CloseWellCoverMonitoring" @click="CloseWellCoverMonitoring"><img src="../assets/images/pic_close.png"></li>
       </ul>
     </div>
@@ -43,7 +43,7 @@
       </div>
     </div>
     <!--井盖详细列表-->
-    <div class="DetailedListOfManholeCovers">
+    <div class="DetailedListOfManholeCovers"  v-if="Detail">
       <!--右侧按钮滚动条区域-->
       <div class="DetailedControl">
         <div class="DetailedContens">
@@ -61,7 +61,8 @@
      <!--左侧表格区域-->
       <div class="DetailedLeft">
         <!--已安装设备-->
-        <div class="InstalledEquipment ipm">
+        <div class="AlarmEquipment ipm" v-if="already">
+          <div class="AlarmClos" @click="Aclose"></div>
           <p style="width: 100%;height: 30px">已安装设备列表</p>
           <div class="InstalledForm">
             <p>选择某一行，地图上自动定位到数据</p>
@@ -92,7 +93,37 @@
           </div>
         </div>
         <!--报警设备-->
-        <div class="AlarmEquipment ipm"></div>
+        <div class="InstalledEquipment ipm" v-if="Call">
+          <div class="InstallClos" @click="Iclose"></div>
+          <p style="width: 100%;height: 30px">报警设备列表</p>
+          <div class="InstalledForm">
+            <p>选择某一行，地图上自动定位到数据</p>
+            <div class="InstalledFormInput">
+              模糊查询：<input type="text">
+              <button class="InstalledFormBut">查询</button>
+            </div>
+            <el-table
+              :data="tableData3"
+              height="300"
+              border
+              style="width: 100%">
+              <el-table-column
+                prop="date"
+                label="日期"
+                width="120">
+              </el-table-column>
+              <el-table-column
+                prop="name"
+                label="姓名"
+                width="120">
+              </el-table-column>
+              <el-table-column
+                prop="address"
+                label="地址">
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
       </div>
     </div>
     <!--地图-->
@@ -122,6 +153,9 @@
         coordinate2:'1238474.3837444',
         scales:'1:8000',
         value10:0,
+        Detail:false,  /*井盖详细列表显示隐藏*/
+        Call:false,   /*报警设备显示因隐藏*/
+        already:false,   /*已安装设备列表显示隐藏 */
         LeftNav:[
             {test:"视图操作",img:require("../assets/images/pic_but1.png")},
             {test:"查询定位",img:require("../assets/images/pic_but3.png")},
@@ -200,8 +234,8 @@
         ]
       }
     },
-
     methods: {
+      // 百度地图
       map(){
         let map =new BMap.Map(this.$refs.allmap); // 创建Map实例
         map.centerAndZoom(new BMap.Point(116.504, 40.020), 14);// 初始化地图,设置中心点坐标和地图级别
@@ -244,13 +278,35 @@
       CloseWellCoverMonitoring(){
         this.TopDataIf = false;
       },
+      // 已安装设备列表页
       Already(){
-
+       this.Detail = true;
+       this.already = true;
+      },
+      // 打开警报详细列表页
+      police(){
+        this.Detail = true;
+        this.Call = true;
+      },
+     // 关闭已安装设备列表页
+      Aclose(){
+        this.already = false;
+        if(this.already === false && this.Call === false){
+          this.Detail = false;
+        }
+      },
+      Iclose(){
+        this.Call = false;
+        if(this.already === false && this.Call === false){
+          this.Detail = false;
+        }
       }
-
     },
     mounted(){
+      // 引入地图
       this.map();
+      let websocket  = new WebSocket("ws://localhost:8081/websocket");
+      console.log(websocket)
     }
 
   }
@@ -330,8 +386,8 @@
     margin: 0;
     padding: 0;
       list-style: none;
-    padding-top:17px ;
     overflow: hidden;
+      overflow-y: scroll;
   }
   .map-LeftNavigation-li{
     width: 100%;
@@ -510,8 +566,6 @@
     border:1px solid #b4d3fc;
     margin-bottom: 10px;
     overflow: hidden;
-  }
-  .InstalledEquipment{
     p{
       margin: 0;
       font-size: 15px;
@@ -564,6 +618,27 @@
         }
       }
     }
-
+  }
+  .InstalledEquipment{
+  }
+  .AlarmClos{
+    width: 21px;
+    height: 21px;
+    background: green;
+    background-image: url('../assets/images/pic_close.png');
+    float: right;
+    margin-right: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .InstallClos{
+    width: 21px;
+    height: 21px;
+    background: seagreen;
+    background-image: url('../assets/images/pic_close.png');
+    float: right;
+    margin-right: 5px;
+    border-radius: 4px;
+    cursor: pointer;
   }
 </style>
