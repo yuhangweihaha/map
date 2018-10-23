@@ -43,9 +43,9 @@
       </div>
     </div>
     <!--井盖详细列表-->
-    <div class="DetailedListOfManholeCovers"  v-if="Detail">
+    <div class="DetailedListOfManholeCovers"  v-show="Detail" ref="jgDetail">
       <!--右侧按钮滚动条区域-->
-      <div class="DetailedControl">
+      <div class="DetailedControl"  v-show="sliderIsShow">
         <div class="DetailedContens">
           <template>
             <div class="block">
@@ -59,80 +59,22 @@
         </div>
       </div>
      <!--左侧表格区域-->
-      <div class="DetailedLeft">
-        <!--已安装设备-->
-        <div class="AlarmEquipment ipm" v-if="already">
-          <div class="AlarmClos" @click="Aclose"></div>
-          <p style="width: 100%;height: 30px">已安装设备列表</p>
-          <div class="InstalledForm">
-            <p>选择某一行，地图上自动定位到数据</p>
-            <div class="InstalledFormInput">
-              模糊查询：<input type="text">
-              <button class="InstalledFormBut">查询</button>
-            </div>
-            <el-table
-              :data="tableData3"
-              height="300"
-              border
-              style="width: 100%">
-              <el-table-column
-                prop="date"
-                label="日期"
-                width="120">
-              </el-table-column>
-              <el-table-column
-                prop="name"
-                label="姓名"
-                width="120">
-              </el-table-column>
-              <el-table-column
-                prop="address"
-                label="地址">
-              </el-table-column>
-            </el-table>
-          </div>
-        </div>
-        <!--报警设备-->
-        <div class="InstalledEquipment ipm" v-if="Call">
-          <div class="InstallClos" @click="Iclose"></div>
-          <p style="width: 100%;height: 30px">报警设备列表</p>
-          <div class="InstalledForm">
-            <p>选择某一行，地图上自动定位到数据</p>
-            <div class="InstalledFormInput">
-              模糊查询：<input type="text">
-              <button class="InstalledFormBut">查询</button>
-            </div>
-            <el-table
-              :data="tableData3"
-              height="300"
-              border
-              style="width: 100%">
-              <el-table-column
-                prop="date"
-                label="日期"
-                width="120">
-              </el-table-column>
-              <el-table-column
-                prop="name"
-                label="姓名"
-                width="120">
-              </el-table-column>
-              <el-table-column
-                prop="address"
-                label="地址">
-              </el-table-column>
-            </el-table>
-          </div>
-        </div>
+      <div class="DetailedLeft" ref="ledLeft">
+        <modalTable v-for="item in tableData" :title="item.title" :tableData="item.data" :ref="item.name" @closeAll="closeAll"></modalTable>
       </div>
     </div>
+    <!--瞎操作-->
+  <!--  <div class="xiacaozuo" v-if="xia">
+      搜索：<input type="text" v-model="sosuo"> 地点：<input type="text" v-model="didian"><button @click="ssss">ssss</button>
+    </div>-->
     <!--地图-->
     <div id="allmap" ref="allmap"></div>
 
-
   </div>
 </template>
+
 <script>
+  import modalTable from '@/common/modalTable'
   export default {
     name: '',
     data () {
@@ -143,6 +85,9 @@
         isTop:true,
         isLeft:true,
         TopDataIf:false,
+        sosuo:'',
+        didian:'',
+        xia:false,
         LinkState:'已连接',     /*链接状态*/
         AlreadyInstalled:'3424',   /*已安装的个数*/
         OffLine:'0',    /*离线*/
@@ -152,12 +97,12 @@
         coordinate1:'1238474.3837372',
         coordinate2:'1238474.3837444',
         scales:'1:8000',
-        value10:0,
-        Detail:false,  /*井盖详细列表显示隐藏*/
+        value10:100,     /*向下滑动*/
+        Detail:true,  /*井盖详细列表显示隐藏*/
         Call:false,   /*报警设备显示因隐藏*/
-        already:false,   /*已安装设备列表显示隐藏 */
+        already:true,   /*已安装设备列表显示隐藏 */
         LeftNav:[
-            {test:"视图操作",img:require("../assets/images/pic_but1.png")},
+          {test:"视图操作",img:require("../assets/images/pic_but1.png")},
             {test:"查询定位",img:require("../assets/images/pic_but3.png")},
             {test:"井盖监控",img:require("../assets/images/pic_but2.png")},
             {test:"车辆GPS监控",img:require("../assets/images/pic_but4.png")},
@@ -167,71 +112,242 @@
             {test:"打印出图",img:require("../assets/images/pic_but8.png")},
             {test:"关于系统",img:require("../assets/images/pic_but9.png")}
           ],
-        tableData3: [{
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-04',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-01',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-08',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-06',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-07',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        },
+        tableData: [
           {
-            date: '2016-05-07',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1518 弄'
+            name: 'modalTable1',
+            title: '已安装设备列表',
+            data: [{
+              date: '0001',
+              name: '正常',
+              address: '2018-10-22 09:54'
+            }, {
+              date: '0002',
+              name: '正常',
+              address: '2018-10-22 09:54'
+            }, {
+              date: '03',
+              name: '不正常',
+              address: '2018-10-22 09:54'
+            }, {
+              date: '192',
+              name: '正常',
+              address: '2018-10-22 09:54'
+            }, {
+              date: '04',
+              name: '不正常',
+              address: '2018-10-22 09:54'
+            }, {
+              date: '05',
+              name: '正常',
+              address: '2018-10-22 09:54'
+            }, {
+              date: '06',
+              name: '正常',
+              address: '2018-10-22 09:54'
+            },
+              {
+                date: '07',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '08',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '09',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '0010',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '0011',
+                name: '不正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '12',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '13',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '14',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '15',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '16',
+                name: '不正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '17',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '18',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '19',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '20',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '21',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '22',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              }]
           },
           {
-            date: '2016-05-07',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1518 弄'
-          },
-          {
-            date: '2016-05-07',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1518 弄'
-          },
-          {
-            date: '2016-05-07',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1518 弄'
-          },
-          {
-            date: '2016-05-07',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1518 弄'
-          },
-          {
-            date: '2016-05-07',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1518 弄'
-          },
-          {
-            date: '2016-05-07',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1518 弄'
+            name: "modalTable2",
+            title: '报警设备列表',
+            data:  [{
+              date: '0001',
+              name: '正常',
+              address: '2018-10-22 09:54'
+            }, {
+              date: '0002',
+              name: '正常',
+              address: '2018-10-22 09:54'
+            }, {
+              date: '03',
+              name: '不正常',
+              address: '2018-10-22 09:54'
+            }, {
+              date: '192',
+              name: '正常',
+              address: '2018-10-22 09:54'
+            }, {
+              date: '04',
+              name: '不正常',
+              address: '2018-10-22 09:54'
+            }, {
+              date: '05',
+              name: '正常',
+              address: '2018-10-22 09:54'
+            }, {
+              date: '06',
+              name: '正常',
+              address: '2018-10-22 09:54'
+            },
+              {
+                date: '07',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '08',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '09',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '0010',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '0011',
+                name: '不正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '12',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '13',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '14',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '15',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '16',
+                name: '不正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '17',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '18',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '19',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '20',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '21',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              },
+              {
+                date: '22',
+                name: '正常',
+                address: '2018-10-22 09:54'
+              }]
           }
-        ]
+
+        ],
+        currentPage1:1,   /*分页*/
+        pagesize:10,
+        restaurants: [], /*模糊查询*/
+        state1: '',
+        sliderIsShow: false,
+        modalTableDivHeight: 0,
+        modalTableAllHeight: 0
       }
     },
     methods: {
@@ -247,6 +363,10 @@
         let point = new BMap.Point(116.504, 40.000);
         let marker = new BMap.Marker(point);
         map.addOverlay(marker);
+        map.addEventListener("click",function(e){
+          alert(88888);
+          console.log(e.point.lng + "," + e.point.lat);
+        });
       },
       mapBut(){
         if(this.isTop){
@@ -274,39 +394,108 @@
         if(index === 2){
           this.TopDataIf = true;
         }
+        else if(index === 1){
+          this.xia = true;
+        }
+        else if(index === 3){
+          console.log(this.$refs.ledLeft.style.width)
+        }
       },
       CloseWellCoverMonitoring(){
         this.TopDataIf = false;
       },
+      showSlider: function(){
+        this.modalTableDivHeight = this.$refs.ledLeft.getElementsByClassName('ipm').length * 415- this.$refs.jgDetail.offsetHeight;
+        if(this.modalTableDivHeight > 0) {
+          this.value10 = 100;
+          this.sliderIsShow = true;
+        }
+      },
+      hideSlider:function(){
+        this.modalTableDivHeight = this.$refs.ledLeft.getElementsByClassName('ipm').length * 415 - this.$refs.jgDetail.offsetHeight;
+        this.value10 = 100;
+        if(this.modalTableDivHeight <= 0) {
+          this.sliderIsShow = false;
+        }
+      },
       // 已安装设备列表页
       Already(){
+       this.$refs.modalTable1[0].hideOrShow(true);
+       let _this = this;
+       setTimeout(function(){
+         _this.showSlider();
+       }, 100);
        this.Detail = true;
-       this.already = true;
       },
       // 打开警报详细列表页
       police(){
+        let _this = this;
+        setTimeout(function(){
+          _this.showSlider();
+        }, 100);
+        this.$refs.modalTable2[0].hideOrShow(true);
         this.Detail = true;
-        this.Call = true;
+
       },
-     // 关闭已安装设备列表页
+      closeAll(){
+          this.hideSlider();
+          if(this.$refs.ledLeft.innerHTML === '<!----><!---->'){
+            this.Detail = false;
+          }
+      },
+     /*// 关闭已安装设备列表页
       Aclose(){
-        this.already = false;
+        this.$refs.modalTable1.hideOrShow(false);
         if(this.already === false && this.Call === false){
           this.Detail = false;
         }
       },
       Iclose(){
-        this.Call = false;
+        this.$refs.modalTable2.hideOrShow(false);
         if(this.already === false && this.Call === false){
           this.Detail = false;
         }
+      },*/
+         // 分页
+      handleCurrentChange1: function(currentPage) {//页码切换
+        this.currentPage1 = currentPage;
+        console.log(this.currentPage1);
+      }
+    },
+    computed: {
+      // 模糊搜索
+      tables () {
+        const search = this.state1;
+        if (search) {
+
+          return this.tableData3.filter(name => {
+            return Object.keys(name).some(key => {
+              // 该方法对大小写敏感！所以之前需要toLowerCase()方法将所有查询到内容变为小写。
+              return String(name[key]).toLowerCase().indexOf(search) > -1
+            })
+          })
+        }
+        return this.tableData3
+      }
+    },
+    components: {
+      modalTable
+    },
+    watch: {
+      value10:function(d1, d2){
+        console.log(d1,111);
+        var top = this.modalTableDivHeight / 100 * (100 - d1) ;
+        this.$refs.ledLeft.style.marginTop = top === 0 ? 0 : '-' +  top + 'px';
       }
     },
     mounted(){
       // 引入地图
       this.map();
-      let websocket  = new WebSocket("ws://localhost:8081/websocket");
-      console.log(websocket)
+      /*let websocket  = new WebSocket("ws://localhost:8081/websocket");
+      console.log(websocket)*/
+      // window.addEventListener('scroll', this.handleScroll);
+      let scrollTop = window.pageYOffset;
+      console.log(scrollTop)
     }
 
   }
@@ -387,7 +576,7 @@
     padding: 0;
       list-style: none;
     overflow: hidden;
-      overflow-y: scroll;
+      /*overflow-y: scroll;*/
   }
   .map-LeftNavigation-li{
     width: 100%;
@@ -534,7 +723,7 @@
   }
   .DetailedListOfManholeCovers{
     width: 27.5%;
-    height: 86%;
+    height: calc(100% - 113px);
     position: absolute;
     right: 1px;
     top: 10.6%;
@@ -607,14 +796,17 @@
           margin-left: 2px;
         }
         .InstalledFormBut{
-          width: 53px;
+          /* width: 53px; */
           height: 20px;
           border: 1px solid #abc6dd;
           color: #042271;
           font-size: 12px;
           cursor: pointer;
-          margin-left: 4px;
+          margin-right: 19px;
           border-radius: 2px;
+          margin-top: 6px;
+          /* display: inline-block; */
+          float: right;
         }
       }
     }
@@ -641,4 +833,59 @@
     border-radius: 4px;
     cursor: pointer;
   }
+  .xiacaozuo{
+    z-index: 9999;
+    position: absolute;
+    top:30%;
+    height: 40px;
+    width: 30%;
+  }
+
+</style>
+<style>
+   .el-pagination{
+    width: 50%;
+     height: 20px ;
+     margin-left: 48%;
+     font-size: 10px;
+  }
+  .inps{
+    width: 100%;
+    height: 29px;
+    border-top: 1px solid #a1adb8;
+  }
+  .el-pagination .btn-next{
+    background: none;
+  }
+   .el-pagination .btn-prev{
+     background: none;
+   }
+  .el-pagination button:disabled{
+    background: none;
+  }
+   .el-pagination__editor.el-input .el-input__inner {
+     height: 23px;
+   }
+ .InstalledFormInput .el-input__inner{
+    height: 21px;
+    margin-left: -26px;
+    width: 133%;
+    margin-top: 5px;
+  }
+   .InstalledFormInput.el-input{
+     display: inline-block;
+     width: 57%;
+   }
+  .DetailedControl .el-slider.is-vertical{
+    position: relative;
+    top: 195px;
+    right: 5px;
+    z-index: 9999;
+  }
+   .el-slider.is-vertical .el-slider__button-wrapper{
+     z-index: 9999;
+   }
+   .el-slider__bar{
+     background-color: #ffffff;
+   }
 </style>
