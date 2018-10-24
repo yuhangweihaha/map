@@ -65,6 +65,9 @@
         setTimeout(function(){
           _This.$emit('closeAll','')
         }, 100)
+      },
+      changeData: function(data){
+        this.n_tableData = data;
       }
 		},
     computed: {

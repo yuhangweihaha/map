@@ -19,15 +19,7 @@
     </div>
     <!--左侧导航栏-->
     <div class="map-LeftNavigation" :style="{width: widthData}">
-      <div class="map-LeftNavigation-but" @click="MapLeft">▶</div>
-      <div class="map-LeftNavigation-top tb">▲</div>
-      <ul class="map-LeftNavigation-ul">
-        <li class="map-LeftNavigation-li" @click="Leftbut(index)" v-for="(lis,index) in LeftNav" :key="index">
-          <div class="map-LeftNavigation-li-spant"><img :src='lis.img' alt=""></div>
-          <div class="map-LeftNavigation-li-spanb">{{lis.test}}</div>
-        </li>
-      </ul>
-      <div class="map-LeftNavigation-bottom tb">▼</div>
+      <LaftNavigation v-for="(lis,index) in LeftNav" :index='index' :test="lis.test" :imgs="lis.img" @Leftbut="Leftbut(index)" @MapLeft="MapLeft"></LaftNavigation>
     </div>
     <!--下方导航条-->
     <div class="map-BottomNavigation">
@@ -63,10 +55,6 @@
         <modalTable v-for="item in tableData" :title="item.title" :tableData="item.data" :ref="item.name" @closeAll="closeAll"></modalTable>
       </div>
     </div>
-    <!--瞎操作-->
-  <!--  <div class="xiacaozuo" v-if="xia">
-      搜索：<input type="text" v-model="sosuo"> 地点：<input type="text" v-model="didian"><button @click="ssss">ssss</button>
-    </div>-->
     <!--地图-->
     <div id="allmap" ref="allmap"></div>
 
@@ -74,7 +62,10 @@
 </template>
 
 <script>
-  import modalTable from '@/common/modalTable'
+  import modalTable from '@/common/modalTable';
+  import LaftNavigation from '@/common/LaftNavigation';
+  import iconCar from '@/assets/images/pic_logo.png';
+  import api from '../../axios/api.js'
   export default {
     name: '',
     data () {
@@ -98,7 +89,7 @@
         coordinate2:'1238474.3837444',
         scales:'1:8000',
         value10:100,     /*向下滑动*/
-        Detail:true,  /*井盖详细列表显示隐藏*/
+        Detail:false,  /*井盖详细列表显示隐藏*/
         Call:false,   /*报警设备显示因隐藏*/
         already:true,   /*已安装设备列表显示隐藏 */
         LeftNav:[
@@ -116,230 +107,13 @@
           {
             name: 'modalTable1',
             title: '已安装设备列表',
-            data: [{
-              date: '0001',
-              name: '正常',
-              address: '2018-10-22 09:54'
-            }, {
-              date: '0002',
-              name: '正常',
-              address: '2018-10-22 09:54'
-            }, {
-              date: '03',
-              name: '不正常',
-              address: '2018-10-22 09:54'
-            }, {
-              date: '192',
-              name: '正常',
-              address: '2018-10-22 09:54'
-            }, {
-              date: '04',
-              name: '不正常',
-              address: '2018-10-22 09:54'
-            }, {
-              date: '05',
-              name: '正常',
-              address: '2018-10-22 09:54'
-            }, {
-              date: '06',
-              name: '正常',
-              address: '2018-10-22 09:54'
-            },
-              {
-                date: '07',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '08',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '09',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '0010',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '0011',
-                name: '不正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '12',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '13',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '14',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '15',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '16',
-                name: '不正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '17',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '18',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '19',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '20',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '21',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '22',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              }]
+            data: []
           },
           {
             name: "modalTable2",
             title: '报警设备列表',
-            data:  [{
-              date: '0001',
-              name: '正常',
-              address: '2018-10-22 09:54'
-            }, {
-              date: '0002',
-              name: '正常',
-              address: '2018-10-22 09:54'
-            }, {
-              date: '03',
-              name: '不正常',
-              address: '2018-10-22 09:54'
-            }, {
-              date: '192',
-              name: '正常',
-              address: '2018-10-22 09:54'
-            }, {
-              date: '04',
-              name: '不正常',
-              address: '2018-10-22 09:54'
-            }, {
-              date: '05',
-              name: '正常',
-              address: '2018-10-22 09:54'
-            }, {
-              date: '06',
-              name: '正常',
-              address: '2018-10-22 09:54'
-            },
-              {
-                date: '07',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '08',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '09',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '0010',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '0011',
-                name: '不正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '12',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '13',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '14',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '15',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '16',
-                name: '不正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '17',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '18',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '19',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '20',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '21',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              },
-              {
-                date: '22',
-                name: '正常',
-                address: '2018-10-22 09:54'
-              }]
+            data:  []
           }
-
         ],
         currentPage1:1,   /*分页*/
         pagesize:10,
@@ -347,25 +121,61 @@
         state1: '',
         sliderIsShow: false,
         modalTableDivHeight: 0,
-        modalTableAllHeight: 0
+        modalTableAllHeight: 0,
+        contentone:'0001234',
+        newsListShow:[],
+        ListShow:[]
       }
     },
     methods: {
       // 百度地图
       map(){
-        let map =new BMap.Map(this.$refs.allmap); // 创建Map实例
+         let map =new BMap.Map(this.$refs.allmap); // 创建Map实例
         map.centerAndZoom(new BMap.Point(116.504, 40.020), 14);// 初始化地图,设置中心点坐标和地图级别
         map.addControl(new BMap.MapTypeControl({//添加地图类型控件
           mapTypes:[          BMAP_NORMAL_MAP,          BMAP_HYBRID_MAP        ]}));
         map.setCurrentCity("北京");// 设置地图显示的城市 此项是必须设置的
         map.enableScrollWheelZoom(true); //开启鼠标滚轮缩放
-        map.addControl(new BMap.NavigationControl());
+       /* map.addControl(new BMap.NavigationControl());
         let point = new BMap.Point(116.504, 40.000);
         let marker = new BMap.Marker(point);
-        map.addOverlay(marker);
+        map.addOverlay(marker);*/
         map.addEventListener("click",function(e){
-          alert(88888);
           console.log(e.point.lng + "," + e.point.lat);
+        });
+      },
+      auto(){
+        //设置标注的图标
+        let map =new BMap.Map(this.$refs.allmap);
+        map.centerAndZoom(new BMap.Point(116.504, 40.020), 14);// 初始化地图,设置中心点坐标和地图级别
+        map.addControl(new BMap.MapTypeControl({//添加地图类型控件
+          mapTypes:[          BMAP_NORMAL_MAP,          BMAP_HYBRID_MAP        ]}));
+        map.setCurrentCity("北京");// 设置地图显示的城市 此项是必须设置的
+        map.enableScrollWheelZoom(true); //开启鼠标滚轮缩放
+        let icon = new BMap.Icon(iconCar,new BMap.Size(50, 50));
+        //设置标注的经纬度
+        let marker = new BMap.Marker(new BMap.Point(116.504, 40.000),{icon:icon});
+        //把标注添加到地图上
+        map.addOverlay(marker);
+        let content = "<table style='font-size: 12px;width: 383px;height: 278px;overflow-y: auto'>";
+        content = content + "<tr>设备编号：00<td> <input type='text' v-model='contentone'></tr></td>";
+        content = content + "<tr><td> 地点：上海汉得信息技术股份有限公司</td></tr>";
+        content = content + "<tr><td> 时间：2018-1-3</td></tr>";
+        content = content + "<tr><td>设备编号：00 <input type='text' name='' id=''></tr></td>";
+        content = content + "<tr><td> 地点：上海汉得信息技术股份有限公司</td></tr>";
+        content = content + "<tr><td> 时间：2018-1-3</td></tr>";
+        content = content + "<tr><td>设备编号：00 <input type='text' name='' id=''></tr></td>";
+        content = content + "<tr><td> 地点：上海汉得信息技术股份有限公司</td></tr>";
+        content = content + "<tr><td> 时间：2018-1-3</td></tr>";
+        content = content + "<tr><td>设备编号：00 <input type='text' name='' id=''></tr></td>";
+        content = content + "<tr><td> 地点：上海汉得信息技术股份有限公司</td></tr>";
+        content = content + "<tr><td> 时间：2018-1-3</td></tr>";
+        content += "</table>";
+        let infowindow = new BMap.InfoWindow(content);
+        console.log(infowindow,7666);
+        marker.addEventListener("click",function(){
+
+          this.openInfoWindow(infowindow);
         });
       },
       mapBut(){
@@ -373,11 +183,17 @@
           this.heightData = 0+'px';
           this.TopData = 0+'px';
           this.isTop = false;
+          this.$refs.jgDetail.style.top = 0.6 + '%';
+          // this.$refs.jgDetail.style.height = 'calc'+ '(' + 100 + '%' + '-' + 33 + 'px' + ')';
+          this.$refs.jgDetail.style.height = 96 + '%';
         }
         else{
           this.isTop = true;
           this.heightData = 80+'px';
           this.TopData = 83+'px';
+          this.$refs.jgDetail.style.top = 10.6 + '%';
+          // this.$refs.jgDetail.style.height = 'calc'+ '(' + 100 + '%' + '-' + 33 + 'px' + ')';
+          this.$refs.jgDetail.style.height = 85.7 + '%';
         }
       },
       MapLeft(){
@@ -398,11 +214,13 @@
           this.xia = true;
         }
         else if(index === 3){
-          console.log(this.$refs.ledLeft.style.width)
+
         }
       },
+
       CloseWellCoverMonitoring(){
         this.TopDataIf = false;
+        this.map();
       },
       showSlider: function(){
         this.modalTableDivHeight = this.$refs.ledLeft.getElementsByClassName('ipm').length * 415- this.$refs.jgDetail.offsetHeight;
@@ -435,7 +253,7 @@
         }, 100);
         this.$refs.modalTable2[0].hideOrShow(true);
         this.Detail = true;
-
+        this.auto();
       },
       closeAll(){
           this.hideSlider();
@@ -443,24 +261,19 @@
             this.Detail = false;
           }
       },
-     /*// 关闭已安装设备列表页
-      Aclose(){
-        this.$refs.modalTable1.hideOrShow(false);
-        if(this.already === false && this.Call === false){
-          this.Detail = false;
-        }
-      },
-      Iclose(){
-        this.$refs.modalTable2.hideOrShow(false);
-        if(this.already === false && this.Call === false){
-          this.Detail = false;
-        }
-      },*/
          // 分页
       handleCurrentChange1: function(currentPage) {//页码切换
         this.currentPage1 = currentPage;
         console.log(this.currentPage1);
-      }
+      },
+      // 获取moke数据
+      setNewsApi: function() {
+        api.JH_news('/news/index', 'type=top&key=123456')
+          .then(res => {
+            this.$refs.modalTable1[0].changeData(res.articles);
+            this.$refs.modalTable2[0].changeData(res.aiu);
+          });
+      },
     },
     computed: {
       // 模糊搜索
@@ -479,7 +292,8 @@
       }
     },
     components: {
-      modalTable
+      modalTable,
+      LaftNavigation
     },
     watch: {
       value10:function(d1, d2){
@@ -496,6 +310,12 @@
       // window.addEventListener('scroll', this.handleScroll);
       let scrollTop = window.pageYOffset;
       console.log(scrollTop)
+
+
+    },
+    created(){
+      this.setNewsApi();
+      console.log(this.tableData,8765432);
     }
 
   }
