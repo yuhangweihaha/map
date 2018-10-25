@@ -7,14 +7,14 @@ const produceNewsData = function() {
   let articles = [];
   for (let i = 0; i < 30; i++) {
     let newArticleObject = {
-      date: Random.csentence(5, 10), //  Random.csentence( min, max )
+      date: Random.csentence(5, 10), //  Random.csentence( min, max )  'name|count': array
       name: Random.cname(), // Random.cname() 随机生成一个常见的中文姓名
       address: Random.date() + ' ' + Random.time() //指示生成的日期字符串的格式,yyyy-MM-dd；Random.time()
     };
     articles.push(newArticleObject)
   }
   let aiu = [];
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 2; i++) {
     let newArticleObject = {
       date: Random.csentence(5, 10), //  Random.csentence( min, max )
       name: Random.cname(), // Random.cname() 随机生成一个常见的中文姓名

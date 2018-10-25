@@ -13,7 +13,7 @@
         <li style="flex:1.7" @click="Already">已安装：[ {{AlreadyInstalled}} ] 个</li>
         <li  style="flex:1.3">离线：[ {{OffLine}} ] 个</li>
         <li style="flex:2">施工打开超时：[ {{ConstructionOpensOvertime}} ] 个</li>
-        <li style="flex: 1.4;" @click="police">报警：[ {{CallThePolice}} ] 个</li>
+        <li style="flex: 1.4;color:#9b2929" @click="police">报警：<span></span> [ {{CallThePolice}} ] 个</li>
         <li class="CloseWellCoverMonitoring" @click="CloseWellCoverMonitoring"><img src="../assets/images/pic_close.png"></li>
       </ul>
     </div>
@@ -29,7 +29,7 @@
         <div class="map-BottomNavigation-left-content"> | 操作提示：请按照相关提示正确操作</div>
        <!--右侧坐标+比例尺-->
         <div class="map-BottomNavigation-right">
-          <div class="map-BottomNavigation-right-coordinate"> | 坐标：{{coordinate1}},{{coordinate2}}</div>
+          <div class="map-BottomNavigation-right-coordinate"><span >| 坐标：</span> <div>{{coordinate1}} , {{coordinate2}}</div></div>
           <div class="map-BottomNavigation-right-scale"> | 比例尺：{{scales}}</div>
         </div>
       </div>
@@ -64,7 +64,7 @@
 <script>
   import modalTable from '@/common/modalTable';
   import LaftNavigation from '@/common/LaftNavigation';
-  import iconCar from '@/assets/images/pic_logo.png';
+  import iconCar from '@/assets/images/pic_img1.gif';
   import api from '../../axios/api.js'
   export default {
     name: '',
@@ -85,8 +85,10 @@
         ConstructionOpensOvertime:'0',   /*施工打开超时*/
         WellColor:'#22a36b',
         CallThePolice:'2',    /*警报*/
-        coordinate1:'1238474.3837372',
-        coordinate2:'1238474.3837444',
+        coordinate1: 116.500004,
+        coordinate2: 40.000002,
+        one:'116.504000',
+        two:'40.020000',
         scales:'1:8000',
         value10:100,     /*向下滑动*/
         Detail:false,  /*井盖详细列表显示隐藏*/
@@ -124,60 +126,57 @@
         modalTableAllHeight: 0,
         contentone:'0001234',
         newsListShow:[],
-        ListShow:[]
+        ListShow:[],
+        map:''
       }
     },
     methods: {
       // 百度地图
-      map(){
-         let map =new BMap.Map(this.$refs.allmap); // 创建Map实例
-        map.centerAndZoom(new BMap.Point(116.504, 40.020), 14);// 初始化地图,设置中心点坐标和地图级别
-        map.addControl(new BMap.MapTypeControl({//添加地图类型控件
+      initMap(){
+        let _this = this;
+        this.map =new BMap.Map(this.$refs.allmap); // 创建Map实例
+        this.map.centerAndZoom(new BMap.Point(this.one, this.two), 14);// 初始化地图,设置中心点坐标和地图级别
+        this.map.addControl(new BMap.MapTypeControl({//添加地图类型控件
           mapTypes:[          BMAP_NORMAL_MAP,          BMAP_HYBRID_MAP        ]}));
-        map.setCurrentCity("北京");// 设置地图显示的城市 此项是必须设置的
-        map.enableScrollWheelZoom(true); //开启鼠标滚轮缩放
-       /* map.addControl(new BMap.NavigationControl());
-        let point = new BMap.Point(116.504, 40.000);
-        let marker = new BMap.Marker(point);
-        map.addOverlay(marker);*/
-        map.addEventListener("click",function(e){
-          console.log(e.point.lng + "," + e.point.lat);
+        this.map.setCurrentCity("北京");// 设置地图显示的城市 此项是必须设置的
+        this.map.enableScrollWheelZoom(true); //开启鼠标滚轮缩放
+        this.map.addControl(new BMap.ScaleControl());//比例尺控件
+        _this.map.addEventListener("mousemove",function(e){
+          _this.coordinate1= e.point.lng;
+          _this.coordinate2= e.point.lat;
         });
       },
       auto(){
         //设置标注的图标
-        let map =new BMap.Map(this.$refs.allmap);
-        map.centerAndZoom(new BMap.Point(116.504, 40.020), 14);// 初始化地图,设置中心点坐标和地图级别
-        map.addControl(new BMap.MapTypeControl({//添加地图类型控件
-          mapTypes:[          BMAP_NORMAL_MAP,          BMAP_HYBRID_MAP        ]}));
-        map.setCurrentCity("北京");// 设置地图显示的城市 此项是必须设置的
-        map.enableScrollWheelZoom(true); //开启鼠标滚轮缩放
-        let icon = new BMap.Icon(iconCar,new BMap.Size(50, 50));
-        //设置标注的经纬度
-        let marker = new BMap.Marker(new BMap.Point(116.504, 40.000),{icon:icon});
-        //把标注添加到地图上
-        map.addOverlay(marker);
-        let content = "<table style='font-size: 12px;width: 383px;height: 278px;overflow-y: auto'>";
-        content = content + "<tr>设备编号：00<td> <input type='text' v-model='contentone'></tr></td>";
-        content = content + "<tr><td> 地点：上海汉得信息技术股份有限公司</td></tr>";
-        content = content + "<tr><td> 时间：2018-1-3</td></tr>";
-        content = content + "<tr><td>设备编号：00 <input type='text' name='' id=''></tr></td>";
-        content = content + "<tr><td> 地点：上海汉得信息技术股份有限公司</td></tr>";
-        content = content + "<tr><td> 时间：2018-1-3</td></tr>";
-        content = content + "<tr><td>设备编号：00 <input type='text' name='' id=''></tr></td>";
-        content = content + "<tr><td> 地点：上海汉得信息技术股份有限公司</td></tr>";
-        content = content + "<tr><td> 时间：2018-1-3</td></tr>";
-        content = content + "<tr><td>设备编号：00 <input type='text' name='' id=''></tr></td>";
-        content = content + "<tr><td> 地点：上海汉得信息技术股份有限公司</td></tr>";
-        content = content + "<tr><td> 时间：2018-1-3</td></tr>";
-        content += "</table>";
-        let infowindow = new BMap.InfoWindow(content);
-        console.log(infowindow,7666);
-        marker.addEventListener("click",function(){
-
-          this.openInfoWindow(infowindow);
-        });
+        for(let i=0;i<2;i++){
+          let icon = new BMap.Icon(iconCar,new BMap.Size(100, 100));
+          //设置标注的经纬度
+          this.map.centerAndZoom(new BMap.Point(this.coordinate1, this.coordinate2), 14);
+          let marker = new BMap.Marker(new BMap.Point(this.coordinate1 + i * 0.01, this.coordinate2),{icon:icon});
+          //把标注添加到地图上
+          this.map.addOverlay(marker);
+          let content = "<table style='font-size: 12px;width: 383px;height: 278px;overflow-y: auto'>";
+          content = content + "<tr><td>设备编号：00 <input type='text' v-model='contentone'></tr></td>";
+          content = content + "<tr><td> 地点：北京正元地理信息</td></tr>";
+          content = content + "<tr><td> 时间：2018-1-3</td></tr>";
+          content = content + "<tr><td>设备编号：00 <input type='text' name='' id=''></tr></td>";
+          content = content + "<tr><td> 地点：北京正元地理信息</td></tr>";
+          content = content + "<tr><td> 时间：2018-1-3</td></tr>";
+          content = content + "<tr><td>设备编号：00 <input type='text' name='' id=''></tr></td>";
+          content = content + "<tr><td> 地点：北京正元地理信息</td></tr>";
+          content = content + "<tr><td> 时间：2018-1-3</td></tr>";
+          content = content + "<tr><td>设备编号：00 <input type='text' name='' id=''></tr></td>";
+          content = content + "<tr><td> 地点：北京正元地理信息</td></tr>";
+          content = content + "<tr><td> 时间：2018-1-3</td></tr>";
+          content += "</table>";
+          let infowindow = new BMap.InfoWindow(content);
+          console.log(infowindow,7666);
+           marker.addEventListener("click",function(){
+            this.openInfoWindow(infowindow);
+          });
+        }
       },
+
       mapBut(){
         if(this.isTop){
           this.heightData = 0+'px';
@@ -209,6 +208,7 @@
       Leftbut(index){
         if(index === 2){
           this.TopDataIf = true;
+          this.auto();
         }
         else if(index === 1){
           this.xia = true;
@@ -220,7 +220,7 @@
 
       CloseWellCoverMonitoring(){
         this.TopDataIf = false;
-        this.map();
+        this.initMap();
       },
       showSlider: function(){
         this.modalTableDivHeight = this.$refs.ledLeft.getElementsByClassName('ipm').length * 415- this.$refs.jgDetail.offsetHeight;
@@ -253,7 +253,6 @@
         }, 100);
         this.$refs.modalTable2[0].hideOrShow(true);
         this.Detail = true;
-        this.auto();
       },
       closeAll(){
           this.hideSlider();
@@ -266,14 +265,14 @@
         this.currentPage1 = currentPage;
         console.log(this.currentPage1);
       },
-      // 获取moke数据
+      // 获取moke数据(列表数据)
       setNewsApi: function() {
         api.JH_news('/news/index', 'type=top&key=123456')
           .then(res => {
             this.$refs.modalTable1[0].changeData(res.articles);
             this.$refs.modalTable2[0].changeData(res.aiu);
           });
-      },
+      }
     },
     computed: {
       // 模糊搜索
@@ -304,7 +303,7 @@
     },
     mounted(){
       // 引入地图
-      this.map();
+      this.initMap();
       /*let websocket  = new WebSocket("ws://localhost:8081/websocket");
       console.log(websocket)*/
       // window.addEventListener('scroll', this.handleScroll);
@@ -493,12 +492,23 @@
     color:#fff;
   }
   .map-BottomNavigation-right-coordinate{
-    float: left;
-    margin-left: 20%;
+    width: 230px;
+    position: absolute;
+    right: 40%;
+    display: flex;
+    span{
+      width: 20%;
+      height: 100%;
+      line-height: 16px;
+    }
+    div{
+      width: 70%;
+      height: 100%;
+    }
   }
   .map-BottomNavigation-right-scale{
-    float: left;
-    margin-left: 7%;
+    position: absolute;
+    right: 15%;
   }
   .WellCoverMonitoring{
     width: 613px;
@@ -525,6 +535,16 @@
         list-style: none;
         color:#2c4586;
         cursor: pointer;
+        span{
+          position: absolute;
+          right: 80px;
+          width: 88px;
+          height: 20px;
+          top: 8px;
+          /* background: salmon; */
+          border: 1px solid #eecdcd;
+          border-radius: 5px;
+        }
       }
 
     }
