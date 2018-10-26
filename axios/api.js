@@ -30,7 +30,7 @@ export function fetch(url, params) {
 }
 
 export default {
-  JH_news(url, params) {
+  post(url, params) {
     return fetch(url, params);
   }
 }
