@@ -267,7 +267,7 @@
       },
       // 获取moke数据(列表数据)
       setNewsApi: function() {
-        api.JH_news('/news/index', 'type=top&key=123456')
+        api.post('/news/index')
           .then(res => {
             this.$refs.modalTable1[0].changeData(res.articles);
             this.$refs.modalTable2[0].changeData(res.aiu);
@@ -309,14 +309,21 @@
       // window.addEventListener('scroll', this.handleScroll);
       let scrollTop = window.pageYOffset;
       console.log(scrollTop)
-
-
     },
     created(){
       this.setNewsApi();
       console.log(this.tableData,8765432);
+    },
+    filters: {
+      toLowCase: function (str) {
+        if (str == '0') {
+          str = '否'
+        } else if (str == '1') {
+          str = '是'
+        }
+        return str
+      },
     }
-
   }
 </script>
 

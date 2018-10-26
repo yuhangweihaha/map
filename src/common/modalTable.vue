@@ -67,7 +67,8 @@
         }, 100)
       },
       changeData: function(data){
-        this.n_tableData = data;
+        console.log(data,7677777);
+          this.n_tableData = data;
       }
 		},
     computed: {
@@ -88,7 +89,17 @@
     },
 		mounted() {
 
-		}
+		},
+    filters: {
+      toLowCase: function (str) {
+        if (str == '0') {
+          str = '否'
+        } else if (str == '1') {
+          str = '是'
+        }
+        return str
+      },
+    }
 	}
 </script>
 <style lang="less" scoped>
