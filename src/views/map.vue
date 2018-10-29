@@ -127,7 +127,8 @@
         contentone:'0001234',
         newsListShow:[],
         ListShow:[],
-        map:''
+        map:'',
+        AlarmDetails:[]
       }
     },
     methods: {
@@ -148,6 +149,8 @@
       },
       auto(){
         //设置标注的图标
+        let tails = this.AlarmDetails.Secondcover;
+        console.log(tails,111);
         for(let i=0;i<2;i++){
           let icon = new BMap.Icon(iconCar,new BMap.Size(100, 100));
           //设置标注的经纬度
@@ -156,7 +159,7 @@
           //把标注添加到地图上
           this.map.addOverlay(marker);
           let content = "<table style='font-size: 12px;width: 383px;height: 278px;overflow-y: auto'>";
-          content = content + "<tr><td>设备编号：00 <input type='text' v-model='contentone'></tr></td>";
+          content = content + "<tr><td>设备编号： <input type='text'  src='sdyga'></tr></td>";
           content = content + "<tr><td> 地点：北京正元地理信息</td></tr>";
           content = content + "<tr><td> 时间：2018-1-3</td></tr>";
           content = content + "<tr><td>设备编号：00 <input type='text' name='' id=''></tr></td>";
@@ -272,6 +275,14 @@
             this.$refs.modalTable1[0].changeData(res.articles);
             this.$refs.modalTable2[0].changeData(res.aiu);
           });
+      },
+      //mock井盖基本信息
+      Secondcover: function() {
+        api.post('/news/api')
+          .then(res => {
+            this.AlarmDetails = res;
+            console.log(this.AlarmDetails,8888)
+          });
       }
     },
     computed: {
@@ -312,6 +323,7 @@
     },
     created(){
       this.setNewsApi();
+      this.Secondcover();
       console.log(this.tableData,8765432);
     },
     filters: {

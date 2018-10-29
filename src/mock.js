@@ -34,7 +34,11 @@ const Warningcovers = function() {
     let Warning = {
       date: Random.natural(0,1000000000), //  Random.csentence( min, max )
       name: Random.natural(3,3), // Random.cname() 随机生成一个常见的中文姓名
-      address: Random.date() + ' ' + Random.time() //指示生成的日期字符串的格式,yyyy-MM-dd；Random.time()
+      address: Random.date() + ' ' + Random.time(), //指示生成的日期字符串的格式,yyyy-MM-dd；Random.time()
+      Manufacturer: Random.csentence(),  //生产厂家
+      Installation: Random.csentence(),   //安装单位
+      installDate: Random.date(), // 安装日期
+      ServiceLife: Random.natural(1, 100) // 使用寿命
     };
     Secondcover.push(Warning)
   }

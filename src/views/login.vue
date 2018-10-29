@@ -1,5 +1,6 @@
 <template>
   <div id="login">
+    <img src="../assets/images/pic_logins.jpg" alt="">
     <div class="LoginSignIn">
       <div class="LoginSignInLeft lo" >用户名： <input type="text"></div>
       <div class="LoginSignInRight lo" >密码： <input type="password"></div>
@@ -35,8 +36,12 @@
   top:0;
   width:100%;
   height:100%;
-  background-image: url('../assets/images/pic_logins.jpg');
-  background-repeat: repeat-y;
+  /*background-image: url('../assets/images/pic_logins.jpg');*/
+  /*background-repeat: repeat-y;*/
+  img{
+    width: 100%;
+    height: 100%;
+  }
 }
 .LoginSignIn{
   width: 573px;
