@@ -2,6 +2,118 @@
   <div id="login">
     <img src="../assets/images/pic_logins.jpg" alt="">
     <div class="LoginSignIn">
+      <div class="LoginSignInLeft lo">用户名： <input type="text"></div>
+      <div class="LoginSignInRight lo">密码： <input type="password"></div>
+      <div class="LoginSignInBut" @click="loginIn"></div>
+      <div class="LoginSignInchekbox"><input type="checkbox">记住密码？</div>
+    </div>
+  </div>
+</template>
+<script>
+  export default {
+    name: '',
+    data() {
+      return {}
+    },
+
+    methods: {
+      loginIn() {
+        this.$router.push({path: '/map'})
+      }
+    },
+//      created(){
+//    }
+
+  }
+</script>
+
+<style lang="less" scoped>
+  #login {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    /*background-image: url('../assets/images/pic_logins.jpg');*/
+    /*background-repeat: repeat-y;*/
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .LoginSignIn {
+    width: 573px;
+    height: 110px;
+    position: absolute;
+    bottom: 49px;
+    left: 32%;
+  }
+
+  .lo {
+    width: 225px;
+    height: 24px;
+    position: absolute;
+    top: 35%;
+    color: #fff;
+    font-size: 16px;
+    input {
+      width: 150px;
+      height: 75%;
+      text-indent: 25px;
+    }
+  }
+
+  .LoginSignInLeft {
+
+    left: 5%;
+  }
+
+  .LoginSignInRight {
+    left: 46%;
+  }
+
+  .LoginSignInBut {
+    width: 30px;
+    height: 30px;
+    background-image: url('../assets/images/pic_login1.png');
+    /*background-repeat: repeat-y;*/
+    border-radius: 50px;
+    position: absolute;
+    top: 33%;
+    right: 8%;
+    cursor: pointer;
+    box-shadow: 0 2px 1px 0;
+  }
+
+  .LoginSignInchekbox {
+    width: 110px;
+    height: 20px;
+    color: #fff;
+    position: absolute;
+    top: 72%;
+    left: 16%;
+    font-size: 12px;
+    input {
+      margin-top: 3px;
+      float: left;
+    }
+  }
+
+  .LoginSignInLeft input {
+    background-image: url('../assets/images/pic_login2.png');
+    background-repeat: no-repeat;
+  }
+
+  .LoginSignInRight input {
+    background-image: url('../assets/images/pic_login3.png');
+    background-repeat: no-repeat;
+  }
+</style>
+
+<!-- <template>
+  <div id="login">
+    <div class="LoginSignIn">
       <div class="LoginSignInLeft lo" >用户名： <input type="text"></div>
       <div class="LoginSignInRight lo" >密码： <input type="password"></div>
       <div class="LoginSignInBut" @click="loginIn"></div>
@@ -36,12 +148,8 @@
   top:0;
   width:100%;
   height:100%;
-  /*background-image: url('../assets/images/pic_logins.jpg');*/
-  /*background-repeat: repeat-y;*/
-  img{
-    width: 100%;
-    height: 100%;
-  }
+  background-image: url('../assets/images/pic_logins.jpg');
+  background-repeat: repeat-y;
 }
 .LoginSignIn{
   width: 573px;
@@ -106,7 +214,7 @@
      }
 </style>
 
-<!--<template>
+<template>
   <div class="bg-login">
     <div class="login-header container">
     </div>
@@ -247,7 +355,6 @@
     user-select: none;
   }
 </style>
-<!--
 <template>
   <div>
     <input type="text" placeholder="请输入..." v-model="searchVal">
@@ -305,11 +412,10 @@
     }
   };
 </script>
--->
 
 
 
-<!--<template>
+<template>
 <div id="app">
   <input type="text" v-model='search' />
   <ul v-for="item in searchData ">
@@ -374,11 +480,11 @@
       }
     }
   }
-</script>-->
+</script>
 
 
 
-<!--<template>
+<template>
   <div class="dormitory">
     <div class="searchWord">
       <div style="display: inline-block"> 搜索：</div>
@@ -506,9 +612,9 @@
     methods: {
     }
   }
-</script>-->
+</script>
 
-<!--<template>
+<template>
   <div>
     <el-input v-model="tableDataName" placeholder="请输入姓名" style="width:240px"></el-input>
     <el-button type="primary" @click="doFilter">搜索</el-button>
@@ -662,9 +768,9 @@
       }
     }
   };
-</script>-->
+</script>
 
-<!--<template>
+<template>
   <div>
     <el-input v-model="tableDataName" placeholder="请输入姓名" style="width:240px"></el-input>
     <el-button type="primary" @click="doFilter">搜索</el-button>
@@ -818,8 +924,9 @@
       }
     }
   };
-</script>-->
+</script>
 
 
 
 
+ -->
