@@ -6,7 +6,7 @@ const Random = Mock.Random;
 const produceNewsData = function () {
   //所有
   let articles = [];
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 16; i++) {
     let newArticleObject = {
       id: Random.increment(), //详细列表id
       date: Random.natural(0, 1000000000), //  设备编号
@@ -19,13 +19,14 @@ const produceNewsData = function () {
       installDate: Random.date(), // 安装日期
       ServiceLife: Random.natural(1, 100), // 使用寿命
       coordinateX: Random.float(116, 117, 6, 5), //坐标x
-      coordinateY: Random.float(40, 41, 6, 5) //坐标Y
+      coordinateY: Random.float(40, 41, 6, 5), //坐标Y
+      selectPerson: []
     };
     articles.push(newArticleObject)
   }
   //警报
   let aiu = [];
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 4; i++) {
     let newArticleObject = {
       id: Random.increment(), //详细列表id
       date: Random.natural(0, 1000000000), //  设备编号
@@ -38,13 +39,14 @@ const produceNewsData = function () {
       installDate: Random.date(), // 安装日期
       ServiceLife: Random.natural(1, 100), // 使用寿命
       coordinateX: Random.float(116, 116, 6, 5), //坐标x
-      coordinateY: Random.float(40, 40, 6, 5) //坐标Y
+      coordinateY: Random.float(40, 40, 6, 5), //坐标Y
+      selectPerson: []
     };
     aiu.push(newArticleObject)
   }
   // 离线
   let Offline = [];
-  for (let i = 0; i < 0; i++) {
+  for (let i = 0; i < 10; i++) {
     let newArticleObject = {
       id: Random.increment(), //详细列表id
       date: Random.natural(0, 1000000000), //  设备编号
@@ -57,13 +59,14 @@ const produceNewsData = function () {
       installDate: Random.date(), // 安装日期
       ServiceLife: Random.natural(1, 100), // 使用寿命
       coordinateX: Random.float(116, 117, 6, 5), //坐标x
-      coordinateY: Random.float(40, 41, 6, 5) //坐标Y
+      coordinateY: Random.float(40, 41, 6, 5), //坐标Y
+      selectPerson: []
     };
     Offline.push(newArticleObject)
   }
   //超时
   let overtime = [];
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 6; i++) {
     let newArticleObject = {
       id: Random.increment(), //详细列表id
       date: Random.natural(0, 1000000000), //  设备编号
@@ -76,15 +79,16 @@ const produceNewsData = function () {
       installDate: Random.date(), // 安装日期
       ServiceLife: Random.natural(1, 100), // 使用寿命
       coordinateX: Random.float(116, 117, 6, 5), //坐标x
-      coordinateY: Random.float(40, 41, 6, 5) //坐标Y
+      coordinateY: Random.float(40, 41, 6, 5), //坐标Y
+      selectPerson: []
     };
     overtime.push(newArticleObject)
   }
   return {
     articles: articles,
     aiu: aiu,
-    Offline:Offline,
-    overtime:overtime
+    Offline: Offline,
+    overtime: overtime
   }
 };
 const Warningcovers = function () {

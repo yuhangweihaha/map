@@ -8,7 +8,7 @@
       <div class="InstalledFormInput">
         <div style="float: left">模糊匹配：</div>
         <!--模糊查询input-->
-        <el-input v-model="state1" style="width: 57%"></el-input>
+        <el-input v-model="state1" style="width: 57%"  clearable></el-input>
         <!--<button class="InstalledFormBut" @click="searchData">查询</button>-->
       </div>
       <el-table
@@ -89,7 +89,7 @@
         for (let i = 0; i < data.length; i++) {
           console.log(data[i].name, 'data');
           if (data[i].name === 0) {
-            data[i].name = '正常'
+            data[i].name = '正常';
           } else if (data[i].name === 1) {
             data[i].name = '离线'
           } else if (data[i].name === 2) {
@@ -549,12 +549,16 @@
 
   .DetailedControl .el-slider.is-vertical {
     position: relative;
-    top: 195px;
+    top: 111px;
     right: 1px;
     z-index: 9999;
   }
 
   .el-slider.is-vertical .el-slider__button-wrapper {
     z-index: 9999;
+  }
+  .el-input__suffix{
+    margin-top: 8px;
+    margin-right: -40px;
   }
 </style>

@@ -1,11 +1,25 @@
 <template>
   <div id="login">
-    <img src="../assets/images/pic_logins.jpg" alt="">
+  <!--  <img src="../assets/images/pic_logins.jpg" alt="">-->
+    <img src="../assets/images/login/zy_login.png" alt="">
     <div class="LoginSignIn">
-      <div class="LoginSignInLeft lo">用户名： <input type="text"></div>
-      <div class="LoginSignInRight lo">密码： <input type="password"></div>
-      <div class="LoginSignInBut" @click="loginIn"></div>
-      <div class="LoginSignInchekbox"><input type="checkbox">记住密码？</div>
+      <!--logo-->
+      <div class="logins">
+       <div class="login"><img src="../assets/images/login/zy_logo.png" alt=""></div>
+        <div class="loginw"><img src="../assets/images/login/zy_logo2.png" alt=""></div>
+      </div>
+      <!--登录input按钮-->
+      <div class="LeftLo">
+        <div class="LoginSignInLeft lo"><el-input placeholder="请输入用户名" prefix-icon="el-icon-phoneBook" v-model="loginForm.username"></el-input></div>
+        <div class="LoginSignInRight lo"><el-input  type="password" placeholder="请输入密码" prefix-icon=" el-icon-password" @keyup.enter.native="loginIn()" v-model="loginForm.password"></el-input></div>
+        <!--<div class="LoginSignInBut" @click="loginIn">登录</div>-->
+        <el-button type="primary" size="medium " @click="loginIn">登录</el-button>
+        <div class="check">
+          <el-tooltip class="item" effect="dark" content="可以选择是否记住密码" placement="right-end"><el-checkbox v-model="checked">记住密码</el-checkbox></el-tooltip>
+
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
@@ -13,18 +27,67 @@
   export default {
     name: '',
     data() {
-      return {}
+      return {
+        loginForm:{
+          username:'',
+          password:'',
+        },
+        checked:false
+      }
     },
 
     methods: {
       loginIn() {
-        this.$router.push({path: '/map'})
+        let self = this;
+        if(this.loginForm.username === '' || this.loginForm.password === ''){
+          this.$message('账号密码不能为空');
+        }else{
+          if (self.checked === true) {
+            //传入账号名，密码，和保存天数3个参数
+            self.setCookie(self.loginForm.username, self.loginForm.password, 7);
+          }else {
+            //清空Cookie
+            self.clearCookie();
+          }
+          self.$router.push({path: '/map'})
+        }
+        },
+      //设置cookie
+      setCookie(c_name, c_pwd, exdays) {
+        let exdate = new Date(); //获取时间
+        exdate.setTime(exdate.getTime() + 24 * 60 * 60 * 1000 * exdays); //保存的天数
+        //字符串拼接cookie
+        window.document.cookie = "userName" + "=" + c_name + ";path=/;expires=" + exdate.toGMTString();
+        window.document.cookie = "userPwd" + "=" + c_pwd + ";path=/;expires=" + exdate.toGMTString();
+      },
+      //读取cookie
+      getCookie: function() {
+        if (document.cookie.length > 0) {
+          console.log(document.cookie,'document.cookie');
+          let arr = document.cookie.split('; '); //这里显示的格式需要切割一下自己可输出看下
+          for (let i = 0; i < arr.length; i++) {
+            let arr2 = arr[i].split('='); //再次切割
+            //判断查找相对应的值
+            if (arr2[0] == 'userName') {
+              this.loginForm.username = arr2[1]; //保存到保存数据的地方
+            } else if (arr2[0] == 'userPwd') {
+              this.loginForm.password = arr2[1];
+            }
+          }
+        }
+      },
+      //清除cookie
+      clearCookie: function() {
+        this.setCookie("", "", -1); //修改2值都为空，天数为负1天就好了
       }
-    },
-//      created(){
-//    }
 
-  }
+      },
+        created(){
+       this.getCookie();
+   }
+    }
+
+
 </script>
 
 <style lang="less" scoped>
@@ -42,27 +105,112 @@
     }
   }
 
-  .LoginSignIn {
-    width: 573px;
-    height: 110px;
-    position: absolute;
-    bottom: 49px;
-    left: 32%;
-  }
-
-  .lo {
-    width: 225px;
-    height: 24px;
-    position: absolute;
-    top: 35%;
-    color: #fff;
-    font-size: 16px;
-    input {
-      width: 150px;
-      height: 75%;
-      text-indent: 25px;
+  @media (min-width: 1600px){
+    .LoginSignIn {
+      width: 450px;
+      height: 286px;
+      position: absolute;
+      bottom: 24.5%;
+      left: 36%;
+      .check{
+        width: 80px;
+        height: 20px;
+        position: absolute;
+        right: 65%;
+        bottom: 1%;
+      }
+    }
+    .LeftLo{
+      width: 300px;
+      height: 150px;
+      margin-top: 25px;
+      margin-left: 17%;
+    }
+    #login{
+      img{
+        height: 110%;
+      }
     }
   }
+  @media (min-width: 1680px){
+    .LoginSignIn {
+      width: 450px;
+      height: 286px;
+      position: absolute;
+      bottom: 29%;
+      left: 36.6%;
+      .check{
+        width: 80px;
+        height: 20px;
+        position: absolute;
+        right: 65%;
+        bottom: -10%;
+      }
+    }
+    .LeftLo{
+      width: 300px;
+      height: 150px;
+      margin-top: 55px;
+      margin-left: 17%;
+    }
+  }
+  @media (min-width: 1920px){
+    .LoginSignIn {
+      width: 450px;
+      height: 286px;
+      position: absolute;
+      bottom: 30%;
+      left: 38%;
+      .check{
+        width: 80px;
+        height: 20px;
+        position: absolute;
+        right: 65%;
+        bottom: -10.5%;
+        color:#fff;
+      }
+    }
+    .LeftLo{
+      width: 300px;
+      height: 150px;
+      margin-top: 57px;
+      margin-left: 17%;
+    }
+
+  }
+
+
+  .lo {
+    width: 297px;
+    height: 38px;
+    color: #fff;
+    font-size: 16px;
+    border-radius: 4px;
+    margin-bottom: 14px;
+    input {
+      width: 100%;
+      height: 100%;
+      text-indent: 25px;
+      border:0;
+    }
+  }
+.logins{
+  width: 449px;
+  height: 85px;
+  .login{
+    width: 85px;
+    height: 85px;
+    float: left;
+  }
+  .loginw{
+    width: 362px;
+    height: 56px;
+    float: right;
+    margin-left: 2px;
+    margin-top: 11px;
+  }
+
+}
 
   .LoginSignInLeft {
 
@@ -72,861 +220,201 @@
   .LoginSignInRight {
     left: 46%;
   }
-
-  .LoginSignInBut {
-    width: 30px;
-    height: 30px;
-    background-image: url('../assets/images/pic_login1.png');
-    /*background-repeat: repeat-y;*/
-    border-radius: 50px;
-    position: absolute;
-    top: 33%;
-    right: 8%;
-    cursor: pointer;
-    box-shadow: 0 2px 1px 0;
-  }
-
-  .LoginSignInchekbox {
-    width: 110px;
-    height: 20px;
-    color: #fff;
-    position: absolute;
-    top: 72%;
-    left: 16%;
-    font-size: 12px;
-    input {
-      margin-top: 3px;
-      float: left;
-    }
-  }
-
   .LoginSignInLeft input {
-    background-image: url('../assets/images/pic_login2.png');
+    background-image: url('../assets/images/login/zy_user.png');
     background-repeat: no-repeat;
   }
 
   .LoginSignInRight input {
-    background-image: url('../assets/images/pic_login3.png');
+    background-image: url('../assets/images/login/zy_password.png');
     background-repeat: no-repeat;
+  }
+  .LoginSignInBut {
+    width: 297px;
+    height: 40px;
+    border-radius: 4px;
+    cursor: pointer;
+    background: #0B90E6;
+    font-size: 18px;
+    font-family:MicrosoftYaHei;
+    font-weight:500;
+    color:rgba(255,255,255,1);
+    line-height:59px;
   }
 </style>
-
-<!-- <template>
-  <div id="login">
-    <div class="LoginSignIn">
-      <div class="LoginSignInLeft lo" >用户名： <input type="text"></div>
-      <div class="LoginSignInRight lo" >密码： <input type="password"></div>
-      <div class="LoginSignInBut" @click="loginIn"></div>
-      <div class="LoginSignInchekbox"><input type="checkbox">记住密码？</div>
-    </div>
-  </div>
-</template>
-<script>
-  export default {
-    name: '',
-    data () {
-      return {
-
-      }
-    },
-
-    methods: {
-      loginIn(){
-      this.$router.push({path:'/map'})
-      }
-    },
-//      created(){
-//    }
-
+<style>
+  .LeftLo .el-button--medium{
+    font-size: 18px;
   }
-</script>
-
-<style lang="less" scoped>
-#login{
-  position:absolute;
-  left:0;
-  top:0;
-  width:100%;
-  height:100%;
-  background-image: url('../assets/images/pic_logins.jpg');
-  background-repeat: repeat-y;
-}
-.LoginSignIn{
-  width: 573px;
-  height: 110px;
-  position: absolute;
-  bottom: 49px;
-  left:32%;
-}
-.lo{
-  width: 225px;
-  height: 24px;
-  position: absolute;
-  top:35%;
-  color:#fff;
-  font-size: 16px;
-  input{
-    width: 150px;
-    height: 75%;
-    text-indent: 25px;
+  .LeftLo .el-button--primary{
+    width: 297px;
+    height: 39px;
   }
-}
-
-.LoginSignInLeft{
-
-  left: 5%;
-}
-.LoginSignInRight{
-    left: 46%;
+  .el-input__prefix{
+    color:#409EFF;
   }
-.LoginSignInBut{
-  width: 30px;
-  height: 30px;
-  background-image:url('../assets/images/pic_login1.png');
-  /*background-repeat: repeat-y;*/
-  border-radius: 50px;
-  position: absolute;
-  top:33%;
-  right: 8%;
-  cursor: pointer;
-  box-shadow: 0 2px 1px 0;
-}
-  .LoginSignInchekbox{
-    width: 110px;
-    height: 20px;
+  .el-checkbox__label{
     color:#fff;
+  }
+</style>
+<!--<style>
+
+  .head-log {
+    height: 200px;
+  }
+
+  .company-log {
+    width: 300px;
+  }
+
+  .login-wrap {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ms-title {
     position: absolute;
-    top: 72%;
-    left: 16%;
-    font-size: 12px;
-    input{
-      margin-top: 3px;
-      float: left;
-    }
+    top: 50%;
+    width: 100%;
+    margin-top: -230px;
+    text-align: center;
+    font-size: 30px;
+    color: #fff;
   }
-  .LoginSignInLeft input{
-    background-image: url('../assets/images/pic_login2.png');
-    background-repeat: no-repeat;
+
+  .ms-login {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 300px;
+    height: 160px;
+    margin: -150px 0 0 -190px;
+    padding: 40px;
+    border-radius: 5px;
+    background: #fff;
   }
-     .LoginSignInRight input{
-       background-image: url('../assets/images/pic_login3.png');
-       background-repeat: no-repeat;
-     }
+
+  .login-btn {
+    text-align: center;
+  }
+
+  .login-btn button {
+    width: 100%;
+    height: 36px;
+  }
+
+  .user-defined-style {
+    top: 800px;
+  }
+
 </style>
 
 <template>
-  <div class="bg-login">
-    <div class="login-header container">
-    </div>
-    <div class="middle-box loginscreen bg-white container">
-      <div class="login-top"></div>
-      <div class="login-title text-center">
-        <h1>用户登录</h1>
-      </div>
-      <el-form inline-message :model="loginForm" :rules="loginRules" ref="loginForm">
+
+  <div class="login-wrap">
+    <div class="ms-title">xx平台</div>
+    <div class="ms-login">
+      <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="0px" class="demo-ruleForm">
         <el-form-item prop="username">
-          <el-input status-icon prefix-icon="fa fa-user" v-model="loginForm.username" placeholder="请输入用户名" ></el-input>
+          <el-input v-model="ruleForm.username" placeholder="用户名"></el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input prefix-icon="fa fa-lock" :type="passwordType" @keyup.enter.native="doLogin"
-                    v-model="loginForm.password" placeholder="请输入密码" auto-complete="on">
-          </el-input>
-          <span class="show-pwd" :style="eyeStatus" @click="showPwd"><i class="icon iconfont icon-eye"></i></span>
+          <el-input type="password" placeholder="密码" v-model="ruleForm.password" @keyup.enter.native="submitForm('ruleForm')"></el-input>
         </el-form-item>
-        <el-form-item label="">
-          <el-button type="primary" :loading="loading" @click.native.prevent="doLogin">登录</el-button>
-        </el-form-item>
+        &lt;!&ndash; `checked` 为 true 或 false &ndash;&gt;
+        <el-checkbox v-model="checked">记住密码</el-checkbox>
+        <br>
+        <br>
+        <div class="login-btn">
+          <el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
+        </div>
       </el-form>
     </div>
   </div>
+
 </template>
+
 <script>
+
   export default {
-    name:'login',
-    data() {
+    data: function() {
       return {
-        loginForm:{
-          username:'',
-          password:''
+        checked: true,
+        ruleForm: {
+          username: '',
+          password: ''
         },
-        loginRules:{
-          username:[{require:true, message:'用户名不能为空',trigger:'blur'},{min:5, max:20, message:'长度在 5 到 20 个字符', trigger: 'blur'}],
-          password:[{require:true,trigger:'blur'},{min:6,message:'密码长度必须6位以上',trigger:'blur'}]
-        },
-        loading:false,
-        passwordType:'password',
-        eyeStatus:''
+        userData: [],
+        rules: {
+          username: [{
+            required: true,
+            message: '请输入用户名',
+            trigger: 'blur'
+          }],
+          password: [{
+            required: true,
+            message: '请输入密码',
+            trigger: 'blur'
+          }]
+        }
       }
+    },
+    //页面加载调用获取cookie值
+    mounted() {
+      this.getCookie();
     },
     methods: {
-      showPwd() {
-        if (this.passwordType === 'password') {
-          this.passwordType = ''
-          this.eyeStatus = 'color:#1296db'
-        } else {
-          this.passwordType = 'password'
-          this.eyeStatus = ''
-        }
-      },
-      doLogin() {
-        this.$refs.loginForm.validate(valid => {
-          if (valid){
-            this.loading = true
-          } else{
-            return false
-          }
-        })
-      }
-    }
-  }
-</script>
-<style lang="scss" >
-  $dark_gray:#889aa4;
-  body{
-    background: url("../assets/images/pic_login1.png") no-repeat center fixed;
-    background-size: cover;
-  }
-  .container {
-    padding-right: 15px;
-    padding-left: 15px;
-    margin-right: auto;
-    margin-left: auto;
-  }
-  .bg-white{
-    background-color: #ffffff;
-    opacity: 0.8;
-  }
-  .middle-box{
-    max-width: 400px;
-    z-index: 100;
-    margin: 0 auto;
-    padding-bottom: 10px;
-  }
-  .loginscreen .middle-box{
-    width: 300px;
-  }
-  .login-top{
-    background-color: #3b3127;
-    height: 6px;
-  }
-  .login-title{
-    height:130px;
-    padding:30px;
-    font-weight:bold;
-  }
-  .login-header{
-    height:265px;
-  }
-  .login-logo{
-    margin-top:40px;
-  }
-  .login-logo-zh,
-  .login-logo-en{
-    font-weight:bold;
-    color:#3b3127;
-  }
-  .login-logo-zh{
-    font-size:45px;
-    font-family:"宋体";
-  }
-  .login-logo-en{
-    font-size:21px;
-    font-family:"Helvetica";
-  }
-  .middle-box{
-    .el-input {
-      display: inline-block;
-    }
-    .el-button {
-      display: inline-block;
-      width:100%;
-    }
-    .el-input__inner {
-      text-align: center;
-    }
-  }
-  .show-pwd {
-    position: absolute;
-    right: 10px;
-    top: 2px;
-    font-size: 16px;
-    color: $dark_gray;
-    cursor: pointer;
-    user-select: none;
-  }
-</style>
-<template>
-  <div>
-    <input type="text" placeholder="请输入..." v-model="searchVal">
-    <ul>
-      <li v-for="(item,index) in NewItems" :key="index" :value="item.value" v-text="item.name"></li>
-    </ul>
-  </div>
-</template>
-<script>
-  export default {
-    name: "HelloWorld",
-    data() {
-      return {
-        searchVal: "",
-        items: [
-          {
-            name: "上海",
-            value: "sh"
-          },
-          {
-            name: "北京",
-            value: "bj"
-          },
-          {
-            name: "重庆",
-            value: "cq"
-          },
-          {
-            name: "嗨嗨嗨",
-            value: "hhh"
-          },
-          {
-            name: "海上",
-            value: "hs"
-          },
-          {
-            name: "京都",
-            value: "jd"
-          }
-        ]
-      };
-    },
-    methods: {},
-    computed: {
-      NewItems() {
-        var _this = this;
-        var NewItems = [];
-        this.items.map(function(item) {
-          if (item.name.search(_this.searchVal) != -1) {
-            NewItems.push(item);
+      submitForm(formName) {
+        const self = this;
+        self.$refs[formName].validate((valid) => {
+          if (valid) {
+
+            //判断复选框是否被勾选 勾选则调用配置cookie方法
+            if (self.checked == true) {
+              console.log("checked == true");
+              //传入账号名，密码，和保存天数3个参数
+              self.setCookie(self.ruleForm.username, self.ruleForm.password, 7);
+            }else {
+              console.log("清空Cookie");
+              //清空Cookie
+              self.clearCookie();
+            }
+            console.log("登陆成功");
+          } else {
+            console.log('error submit!!');
+            return false;
           }
         });
-        return NewItems;
-      }
-    }
-  };
-</script>
-
-
-
-<template>
-<div id="app">
-  <input type="text" v-model='search' />
-  <ul v-for="item in searchData ">
-    <li>{{item.name}},价格:￥{{item.price}}</li>
-  </ul>
-</div>
-</template>
-<script>
-  export default {
-    name: "HelloWorld",
-    data() {
-      return{
-        search: '',
-        products: [{
-          name: '苹果',
-          price: 25,
-          category: "水果"
-        }, {
-          name: '香蕉',
-          price: 15,
-          category: "水果"
-        }, {
-          name: '雪梨',
-          price: 65,
-          category: "水果"
-        }, {
-          name: '宝马',
-          price: 2500,
-          category: "汽车"
-        }, {
-          name: '奔驰',
-          price: 10025,
-          category: "汽车"
-        }, {
-          name: '柑橘',
-          price: 15,
-          category: "水果"
-        }, {
-          name: '奥迪',
-          price: 25,
-          category: "汽车"
-        }, {
-          name: '火龙果',
-          price: 25,
-          category: "工具"
-        }]
-      }
-
-    },
-    computed: {
-      searchData: function() {
-        var search = this.search;
-        if (search) {
-          return this.products.filter(function(product) {
-            return Object.keys(product).some(function(key) {
-              return String(product[key]).toLowerCase().indexOf(search) > -1
-            })
-          })
-        }
-
-        return this.products;
-      }
-    }
-  }
-</script>
-
-
-
-<template>
-  <div class="dormitory">
-    <div class="searchWord">
-      <div style="display: inline-block"> 搜索：</div>
-      <el-input v-model="search" style="display: inline-block;width: 1300px"
-                placeholder="请输入搜索内容">
-      </el-input>
-    </div>
-     &lt;!&ndash;遍历表格&ndash;&gt;
-    <div class="dormitoryData">
-      <el-table
-        ref="dormitoryTable"
-        :data="tables"
-        tooltip-effect="dark"
-        stripe
-        style="width: 100%">
-        <el-table-column type="selection" width="45"></el-table-column>
-        <el-table-column label="序号"  type="index" width="65"></el-table-column>
-        <el-table-column label="人物" prop="people">
-        </el-table-column>
-        <el-table-column label="关系" prop="relationship">
-        </el-table-column>
-        <el-table-column label="初见" prop="meet">
-        </el-table-column>
-        <el-table-column label="地点" prop="place">
-        </el-table-column>
-        <el-table-column label="昵称" prop="execg">
-        </el-table-column>
-        <el-table-column label="认识年限" prop="year">
-        </el-table-column>
-        <el-table-column label="成名之作" prop="works">
-        </el-table-column>
-      </el-table>
-    </div>
-  </div>
-</template>
-<script>
-  export default {
-    data () {
-      return {
-        dormitory: [{
-          people: '雷森',
-          relationship: '大学室友',
-          meet: '2010-09-02',
-          place: '图书馆',
-          execg: '胖子',
-          year: '8年',
-          works: '海阔天空'
-        }, {
-          people: '刘利伟',
-          relationship: '大学室友',
-          meet: '2010-09-02',
-          place: '5#633',
-          execg: '老大',
-          year: '8年',
-          works: '勇气'
-        }, {
-          people: '李金龙',
-          relationship: '大学室友',
-          meet: '2010-09-02',
-          place: '5#633',
-          execg: '二哥',
-          year: '8年',
-          works: '遇见'
-        }, {
-          people: '马康',
-          relationship: '大学室友',
-          meet: '2010-09-02',
-          place: '餐饮大厦',
-          execg: '康哥',
-          year: '8年',
-          works: '不再联系'
-        }, {
-          people: '牛光卫',
-          relationship: '大学室友',
-          meet: '2010-09-02',
-          place: '图书馆',
-          execg: '牛牛娃',
-          year: '8年',
-          works: '断点'
-        }, {
-          people: '陆兆攀',
-          relationship: '大学室友',
-          meet: '1991-07-27',
-          place: '百浪',
-          execg: '帅哥',
-          year: '27年',
-          works: '不再犹豫'
-        }, {
-          people: '小甜',
-          relationship: '亲密的人',
-          meet: '2016-10-05',
-          place: '小寨',
-          execg: '甜甜圈',
-          year: '2年',
-          works: 'Forever Love'
-        }],
-        search: ''
-      }
-    },
-    computed: {
-      // 模糊搜索
-      tables () {
-        const search = this.search;
-        if (search) {
-          // filter() 方法创建一个新的数组，新数组中的元素是通过检查指定数组中符合条件的所有元素。
-          // 注意： filter() 不会对空数组进行检测。
-          // 注意： filter() 不会改变原始数组。
-          return this.dormitory.filter(data => {
-            // some() 方法用于检测数组中的元素是否满足指定条件;
-            // some() 方法会依次执行数组的每个元素：
-            // 如果有一个元素满足条件，则表达式返回true , 剩余的元素不会再执行检测;
-            // 如果没有满足条件的元素，则返回false。
-            // 注意： some() 不会对空数组进行检测。
-            // 注意： some() 不会改变原始数组。
-            return Object.keys(data).some(key => {
-              // indexOf() 返回某个指定的字符在某个字符串中首次出现的位置，如果没有找到就返回-1；
-              // 该方法对大小写敏感！所以之前需要toLowerCase()方法将所有查询到内容变为小写。
-              return String(data[key]).toLowerCase().indexOf(search) > -1
-            })
-          })
-        }
-        return this.dormitory
-      }
-    },
-    methods: {
-    }
-  }
-</script>
-
-<template>
-  <div>
-    <el-input v-model="tableDataName" placeholder="请输入姓名" style="width:240px"></el-input>
-    <el-button type="primary" @click="doFilter">搜索</el-button>
-    <el-button type="primary" @click="openData">展示数据</el-button>
-    <el-table
-      :data="tableDataEnd"
-      border
-      style="width: 100%">
-      <el-table-column
-        prop="date"
-        label="日期"
-        width="180">
-      </el-table-column>
-      <el-table-column
-        prop="name"
-        label="姓名"
-        width="180">
-      </el-table-column>
-      <el-table-column
-        prop="address"
-        label="地址">
-      </el-table-column>
-    </el-table>
-    <el-pagination
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-      :current-page="currentPage"
-      :page-sizes="[1, 2, 3, 4]"
-      :page-size="pageSize"
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="totalItems">
-    </el-pagination>
-  </div>
-</template>
-<script>
-  export default {
-    data() {
-      return {
-        tableDataBegin: [
-          {
-            date: "2016-05-01",
-            name: "王小虎",
-            address: "上海市普陀区金沙江路 1518 弄"
-          },
-          {
-            date: "2016-05-02",
-            name: "王小虎",
-            address: "上海市普陀区金沙江路 1517 弄"
-          },
-          {
-            date: "2016-05-03",
-            name: "王二虎",
-            address: "上海市普陀区金沙江路 1519 弄"
-          },
-          {
-            date: "2016-05-04",
-            name: "王二虎",
-            address: "上海市普陀区金沙江路 1516 弄"
-          },
-          {
-            date: "2016-05-05",
-            name: "王三虎",
-            address: "上海市普陀区金沙江路 1518 弄"
-          },
-          {
-            date: "2016-05-06",
-            name: "张三虎",
-            address: "上海市普陀区金沙江路 1517 弄"
-          },
-          {
-            date: "2016-05-07",
-            name: "赵小虎",
-            address: "上海市普陀区金沙江路 1519 弄"
-          },
-          {
-            date: "2016-05-08",
-            name: "于小虎",
-            address: "上海市普陀区金沙江路 1516 弄"
-          }
-        ],
-        tableDataName: "",
-        tableDataEnd: [],
-        currentPage: 4,
-        pageSize: 2,
-        totalItems: 0,
-        filterTableDataEnd:[],
-        flag:false
-      };
-    },
-    created() {
-      this.totalItems = this.tableDataBegin.length;
-      if (this.totalItems > this.pageSize) {
-        for (let index = 0; index < this.pageSize; index++) {
-          this.tableDataEnd.push(this.tableDataBegin[index]);
-        }
-      } else {
-        this.tableDataEnd = this.tableDataBegin;
-      }
-    },
-    methods: {
-      //前端搜索功能需要区分是否检索,因为对应的字段的索引不同
-      //用两个变量接收currentChangePage函数的参数
-      doFilter() {
-        if (this.tableDataName == "") {
-          this.$message.warning("查询条件不能为空！");
-          return;
-        }
-        this.tableDataEnd = []
-        //每次手动将数据置空,因为会出现多次点击搜索情况
-        this.filterTableDataEnd=[]
-        this.tableDataBegin.forEach((value, index) => {
-          if(value.name){
-            if(value.name.indexOf(this.tableDataName)>=0){
-              this.filterTableDataEnd.push(value)
+      },
+      //设置cookie
+      setCookie(c_name, c_pwd, exdays) {
+        var exdate = new Date(); //获取时间
+        exdate.setTime(exdate.getTime() + 24 * 60 * 60 * 1000 * exdays); //保存的天数
+        //字符串拼接cookie
+        window.document.cookie = "userName" + "=" + c_name + ";path=/;expires=" + exdate.toGMTString();
+        window.document.cookie = "userPwd" + "=" + c_pwd + ";path=/;expires=" + exdate.toGMTString();
+      },
+      //读取cookie
+      getCookie: function() {
+        if (document.cookie.length > 0) {
+          var arr = document.cookie.split('; '); //这里显示的格式需要切割一下自己可输出看下
+          for (var i = 0; i < arr.length; i++) {
+            var arr2 = arr[i].split('='); //再次切割
+            //判断查找相对应的值
+            if (arr2[0] == 'userName') {
+              this.ruleForm.username = arr2[1]; //保存到保存数据的地方
+            } else if (arr2[0] == 'userPwd') {
+              this.ruleForm.password = arr2[1];
             }
           }
-        });
-        //页面数据改变重新统计数据数量和当前页
-        this.currentPage=1
-        this.totalItems=this.filterTableDataEnd.length
-        //渲染表格,根据值
-        this.currentChangePage(this.filterTableDataEnd)
-        //页面初始化数据需要判断是否检索过
-        this.flag=true
-      },
-      openData() {},
-      handleSizeChange(val) {
-        console.log(`每页 ${val} 条`);
-        this.pageSize = val;
-        this.handleCurrentChange(this.currentPage);
-      },
-      handleCurrentChange(val) {
-        console.log(`当前页: ${val}`);
-        this.currentPage = val;
-        //需要判断是否检索
-        if(!this.flag){
-          this.currentChangePage(this.tableDataEnd)
-        }else{
-          this.currentChangePage(this.filterTableDataEnd)
         }
-      }, //组件自带监控当前页码
-      currentChangePage(list) {
-        let from = (this.currentPage - 1) * this.pageSize;
-        let to = this.currentPage * this.pageSize;
-        this.tableDataEnd = [];
-        for (; from < to; from++) {
-          if (list[from]) {
-            this.tableDataEnd.push(list[from]);
-          }
-        }
+      },
+      //清除cookie
+      clearCookie: function() {
+        this.setCookie("", "", -1); //修改2值都为空，天数为负1天就好了
       }
     }
-  };
-</script>
+  }
 
-<template>
-  <div>
-    <el-input v-model="tableDataName" placeholder="请输入姓名" style="width:240px"></el-input>
-    <el-button type="primary" @click="doFilter">搜索</el-button>
-    <el-button type="primary" @click="openData">展示数据</el-button>
-    <el-table
-      :data="tableDataEnd"
-      border
-      style="width: 100%">
-      <el-table-column
-        prop="date"
-        label="日期"
-        width="180">
-      </el-table-column>
-      <el-table-column
-        prop="name"
-        label="姓名"
-        width="180">
-      </el-table-column>
-      <el-table-column
-        prop="address"
-        label="地址">
-      </el-table-column>
-    </el-table>
-    <el-pagination
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-      :current-page="currentPage"
-      :page-sizes="[1, 2, 3, 4]"
-      :page-size="pageSize"
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="totalItems">
-    </el-pagination>
-  </div>
-</template>
-<script>
-  export default {
-    data() {
-      return {
-        tableDataBegin: [
-          {
-            date: "2016-05-01",
-            name: "王小虎",
-            address: "上海市普陀区金沙江路 1518 弄"
-          },
-          {
-            date: "2016-05-02",
-            name: "王小虎",
-            address: "上海市普陀区金沙江路 1517 弄"
-          },
-          {
-            date: "2016-05-03",
-            name: "王二虎",
-            address: "上海市普陀区金沙江路 1519 弄"
-          },
-          {
-            date: "2016-05-04",
-            name: "王二虎",
-            address: "上海市普陀区金沙江路 1516 弄"
-          },
-          {
-            date: "2016-05-05",
-            name: "王三虎",
-            address: "上海市普陀区金沙江路 1518 弄"
-          },
-          {
-            date: "2016-05-06",
-            name: "王三虎",
-            address: "上海市普陀区金沙江路 1517 弄"
-          },
-          {
-            date: "2016-05-07",
-            name: "王小虎",
-            address: "上海市普陀区金沙江路 1519 弄"
-          },
-          {
-            date: "2016-05-08",
-            name: "王小虎",
-            address: "上海市普陀区金沙江路 1516 弄"
-          }
-        ],
-        tableDataName: "",
-        tableDataEnd: [],
-        currentPage: 4,
-        pageSize: 2,
-        totalItems: 0,
-        filterTableDataEnd:[],
-        flag:false
-      };
-    },
-    created() {
-      this.totalItems = this.tableDataBegin.length;
-      if (this.totalItems > this.pageSize) {
-        for (let index = 0; index < this.pageSize; index++) {
-          this.tableDataEnd.push(this.tableDataBegin[index]);
-        }
-      } else {
-        this.tableDataEnd = this.tableDataBegin;
-      }
-    },
-    methods: {
-      //前端搜索功能需要区分是否检索,因为对应的字段的索引不同
-      //用两个变量接收currentChangePage函数的参数
-      doFilter() {
-        if (this.tableDataName == "") {
-          this.$message.warning("查询条件不能为空！");
-          return;
-        }
-        this.tableDataEnd = []
-        //每次手动将数据置空,因为会出现多次点击搜索情况
-        this.filterTableDataEnd=[]
-        this.tableDataBegin.forEach((value, index) => {
-          if(value.name){
-            if(value.name.indexOf(this.tableDataName)>=0){
-              this.filterTableDataEnd.push(value)
-            }
-          }
-        });
-        //页面数据改变重新统计数据数量和当前页
-        this.currentPage=1
-        this.totalItems=this.filterTableDataEnd.length
-        //渲染表格,根据值
-        this.currentChangePage(this.filterTableDataEnd)
-        //页面初始化数据需要判断是否检索过
-        this.flag=true
-      },
-      openData() {},
-      handleSizeChange(val) {
-        console.log(`每页 ${val} 条`);
-        this.pageSize = val;
-        this.handleCurrentChange(this.currentPage);
-      },
-      handleCurrentChange(val) {
-        console.log(`当前页: ${val}`);
-        this.currentPage = val;
-        //需要判断是否检索
-        if(!this.flag){
-          this.currentChangePage(this.tableDataEnd)
-        }else{
-          this.currentChangePage(this.filterTableDataEnd)
-        }
-      }, //组件自带监控当前页码
-      currentChangePage(list) {
-        let from = (this.currentPage - 1) * this.pageSize;
-        let to = this.currentPage * this.pageSize;
-        this.tableDataEnd = [];
-        for (; from < to; from++) {
-          if (list[from]) {
-            this.tableDataEnd.push(list[from]);
-          }
-        }
-      }
-    }
-  };
-</script>
-
-
-
-
- -->
+</script>-->

@@ -15,28 +15,43 @@
     <!--井盖监控功能-->
     <div class="WellCoverMonitoring" :style="{top:TopData}" v-if="TopDataIf">
       <ul>
-        <li class="lis1" :style="{color:WellColor,flex:'1.1'}"><img src="../assets/images/pic_connected.png">
+        <li class="lis1" :style="{color:WellColor,flex:'1.1'}" :class='Closed'><img src="../assets/images/pic_connected.png">
           {{LinkState}}
         </li>
         <li style="flex:1.7" @click="Already">已安装：[ {{AlreadyInstalled}} ] 个</li>
         <li style="flex:1.3" @click="lines">离线：[ {{OffLine}} ] 个</li>
         <li style="flex:2" @click="overtimes">施工打开超时：[ {{ConstructionOpensOvertime}} ] 个</li>
-        <li style="flex: 1.4;color:#9b2929" @click="police">报警：<span></span> [ {{CallThePolice}} ] 个</li>
+        <li ref="aseddsad" style="flex: 1.4;color:#9b2929" @click="police">报警：<span v-if="policespan"></span> [
+          {{CallThePolice}} ] 个
+        </li>
+        <li style="flex: 0.5;padding-right: 5px" @click="SoundEetting">设置</li>
         <li class="CloseWellCoverMonitoring"><img @click="CloseWellCoverMonitoring"
                                                   src="../assets/images/pic_close.png"></li>
       </ul>
     </div>
     <!--左侧导航栏-->
-    <div class="map-LeftNavigation" :style="{width: widthData}">
-      <LaftNavigation v-for="(lis,index) in LeftNav" :index='index' :test="lis.test" :imgs="lis.img"
-                      @Leftbut="Leftbut(index)" @MapLeft="MapLeft"></LaftNavigation>
+
+      <div class="Lall"  @mousewheel.native="MapLefts(e)">
+      <div class="map-LeftNavigation-but" @click="MapLeft">▶</div>
+      <div class="map-LeftNavigation" :style="{width: widthData}">
+      <div class="map-LeftNavigation-top tb" @click="LeftTop">▲</div>
+      <div class="map-LeftNavigation-bottom tb" @click="LeftBot">▼</div>
+      <div class="leftNavAll" ref="leftNavAlls" >
+        <LaftNavigation v-for="(lis,index) in LeftNav" :index='index' :test="lis.test" :imgs="lis.img"
+                        @Leftbut="Leftbut(index)"></LaftNavigation>
+      </div>
     </div>
+    </div>
+
     <div class="map-BottomNavigation">
       <!--左侧放大+提示-->
       <div class="map-BottomNavigation-left">
         <div @click="Fullscreen" class="map-BottomNavigation-left-img"></div>
         <div class="map-BottomNavigation-left-content"> | 操作提示：请按照相关提示正确操作</div>
         <!--右侧坐标+比例尺-->
+        <audio v-if="mapbottomaudio" style="position: absolute;top:-40px" :src="audios" loop="loop" autoplay="autoplay">
+          您的浏览器不支持 audio 标签。
+        </audio>
         <div class="map-BottomNavigation-right">
           <div class="map-BottomNavigation-right-coordinate"><span style="line-height: 15px">| 坐标：</span>
             <span style="display:inline-block;width: 140px">{{coordinate1}} , {{coordinate2}}</span>
@@ -57,6 +72,7 @@
             <div class="block">
               <el-slider
                 v-model="value10"
+                :show-tooltip="false"
                 vertical
                 height="100px">
               </el-slider>
@@ -72,7 +88,36 @@
     </div>
     <!--地图-->
     <div id="allmap" ref="allmap"></div>
-
+    <!--树形控件分配人员-->
+    <el-dialog title="人员分配" :visible.sync="Assignment">
+      <el-input
+        placeholder="输入关键字进行过滤"
+        v-model="filterText">
+      </el-input>
+      <el-tree
+        class="filter-tree"
+        :data="data2"
+        :props="defaultProps"
+        default-expand-all
+        :filter-node-method="filterNode"
+        show-checkbox
+        check-strictly
+        node-key="id"
+        :default-expanded-keys="[5, 2]"
+        ref="tree2">
+      </el-tree>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="Assignment = false">取 消</el-button>
+        <el-button type="primary" @click="DetermineAssignment">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!--设置-->
+    <el-dialog title="设置" :visible.sync="SetUp">
+      <el-checkbox :disabled="disabled" v-model="checked">是否关闭报警声</el-checkbox>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="SetUp = false">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -83,7 +128,10 @@
   import icons from '@/assets/images/pic_img2.gif';
   import icon1 from '@/assets/images/pic_icon1.jpg';
   import icon2 from '@/assets/images/pic_icon2.jpg';
-  import api from '../../axios/api.js'
+  /*import icon3 from '@/assets/images/111.png';
+  import icon4 from '@/assets/images/222.png';*/
+  import api from '../../axios/api.js';
+
 
   export default {
     name: '',
@@ -99,17 +147,25 @@
         didian: '',
         Cmask: false, //遮罩层
         xia: false,
+        Closed:'Closed',
+        disabled: false,
         LinkState: '已连接', /*链接状态*/
         AlreadyInstalled: '3424', /*已安装的个数*/
         OffLine: '0', /*离线*/
-        ConstructionOpensOvertime: '0', /*施工打开超时*/
+        ConstructionOpensOvertime: 0, /*施工打开超时*/
         WellColor: '#22a36b',
-        CallThePolice: '2', /*警报*/
+        CallThePolice: 0, /*警报*/
         coordinate1: 116.500004,
         coordinate2: 40.000002,
+        policespan: true,
         one: '116.504000',
         two: '40.020000',
         scales: '1公里',
+        sha: '',
+        zi: '',
+        mapbottomaudio: false, //报警音乐开启
+        checked: false,  //点击多选框关闭报警音乐
+        audios: require("../assets/audio/5320.mp3"),
         value10: 100, /*向下滑动*/
         haha: 0,    //点击
         Detail: false, /*井盖详细列表显示隐藏*/
@@ -133,18 +189,18 @@
             data: []
           },
           {
-            name: "modalTable2",
-            title: '报警设备列表',
-            data: []
-          },
-          {
-            name: 'modalTable3',
+            name: 'modalTable2',
             title: '离线装设备列表',
             data: []
           },
           {
-            name: 'modalTable4',
+            name: 'modalTable3',
             title: '施工打开超时设备列表',
+            data: []
+          },
+          {
+            name: "modalTable4",
+            title: '报警设备列表',
             data: []
           }
         ],
@@ -165,8 +221,85 @@
         Offlinelist: [],           //离线列表
         mapIcon: '',
         markerMap: {},
-        blc: ''
-      }
+        blc: '',
+        Assignment: false,  //人员分派
+        SetUp: false,    //声音设置
+        filterText: '',
+        data2: [{    //树形控件人员分配
+          id: 1,
+          label: '研发中心1',
+          children: [{
+            id: 2,
+            label: '张三'
+          }, {
+            id: 3,
+            label: '李四'
+          }]
+        }, {
+          id: 4,
+          label: '研发中心2',
+          children: [{
+            id: 5,
+            label: '王五'
+          }, {
+            id: 6,
+            label: '赵六',
+          }]
+        }, {
+          id: 113,
+          label: '研发中心3',
+          children: [{
+            id: 7,
+            label: '潘七'
+          }, {
+            id: 8,
+            label: '六八'
+          }]
+        },
+          {
+            id: 9,
+            label: '研发中心3',
+            children: [{
+              id: 10,
+              label: '潘七'
+            }, {
+              id: 11,
+              label: '六八',
+            }]
+          },
+          {
+            id: 12,
+            label: '研发中心3',
+            children: [{
+              id: 13,
+              label: '潘七'
+            }, {
+              id: 14,
+              label: '六八'
+            }]
+          }, {
+            id: 15,
+            label: '研发中心3',
+            children: [{
+              id: 16,
+              label: '潘七',
+            }, {
+              id: 17,
+              label: '六八'
+            }]
+          }
+
+
+        ],
+        defaultProps: {
+          children: 'children',
+          label: 'label'
+        },
+        nowData: '',
+        jgtype: 0,
+        notify: null,
+        LeftA:0
+      };
     },
     methods: {
       // 百度地图
@@ -189,183 +322,102 @@
           }, 100);
         });
       },
-      //警告列表坐标
-      Wellcoveralarm() {
-        //设置标注的图标
-        let tails = this.AlarmDetails;
-        for (let i = 0; i < tails.length; i++) {
-          let arr = tails[i];
-          this.mapIcon = new BMap.Icon(iconCar, new BMap.Size(100, 100)); //图标
-          //设置标注的经纬度
-          this.map.centerAndZoom(new BMap.Point(arr.coordinateX, arr.coordinateY + 0.017), 14); //
-          let marker = new BMap.Marker(new BMap.Point(arr.coordinateX, arr.coordinateY), {icon: this.mapIcon});
-          //把标注添加到地图上
-          this.map.addOverlay(marker);
-          let content = "<table style='font-size: 12px;display:block;width: 280px;height: 320px;overflow:scroll;'>";
-          content += "<tr style='height: 50px;margin-left: 20px'><td>设备编号：<input type='text' value = " + arr.date + "></tr></td>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>井盖编号：<input type='text' value =" + arr.names + " ></td></tr>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>管理单位：<input type='text' value = " + arr.ManagementUnit + "></tr></td>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>生产厂家：<input type='text' value = " + arr.Manufacturer + "></tr></td>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>安装单位：<input type='text' value =" + arr.Installation + "></tr></td>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>安装日期：<input type='text' value =" + arr.installDate + "></tr></td>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>使用寿命：<input type='text' value =" + arr.ServiceLife + '年' + "  ></tr></td>";
-          content += "<tr style='height: 50px;margin-bottom: 40px'><td>井盖坐标：<input type='text' value =" + 'X:' + arr.coordinateX + 'Y:' + arr.coordinateY + "></tr></td>";
-          content += "</table>";
-          content += "<div style='position: absolute;bottom: -3px;background:#fff;height: 37px;width: 100%;'><button class='reduction' style='padding: 3px 15px;float: left;margin-left: 35px;margin-top: 3px'>井盖复位</button><button class='close' style='padding: 3px 15px;float: right;margin-right: 15px;margin-top: 3px'>关闭</button><button class='yudad' style='padding: 3px 15px;float: right;margin-right: 10px;margin-top: 3px'>分派</button></div>";
-          let infowindow = new BMap.InfoWindow(content);
-          // 人员分派点击事件
-          marker.addEventListener("click", function () {
-            this.openInfoWindow(infowindow);
-            setTimeout(function () {
-              document.getElementsByClassName('yudad')[0].onclick = function () {
-                alert(0);
-              };
-              document.getElementsByClassName('close')[0].onclick = function () {
-                document.querySelector('.BMap_pop').style.display = "none";
-                document.querySelector('.BMap_shadow').style.display = "none";
-              };
-              document.getElementsByClassName('reduction')[0].onclick = function () {
-                alert(2);
-              };
-            }, 100)
-          });
-          this.markerMap[arr.coordinateX + "_" + arr.coordinateY] = marker;
-        }
-        this.Cmask = false;
-      },
+
       //已安装设备列表
-      auto() {
+      auto(type, type2) {
+        let _this = this;
         let Alar = this.alreadyInstalled;
+        let nowArray = [];
+        let x = Alar[0].coordinateX;
+        let y = Alar[0].coordinateY;
         for (let i = 0; i < Alar.length; i++) {
           let arr = Alar[i];
-          if (arr.name === '报警') {
-            this.mapIcon = new BMap.Icon(iconCar, new BMap.Size(100, 100)); //图标
-          } else if (arr.name === '正常') {
-            this.mapIcon = new BMap.Icon(icons, new BMap.Size(100, 80)); //图标
-          } else if (arr.name === '离线') {
-            this.mapIcon = new BMap.Icon(icon1, new BMap.Size(100, 100)); //图标
-          } else if (arr.name === '超时') {
-            this.mapIcon = new BMap.Icon(icon2, new BMap.Size(88, 88)); //图标
+          if (type === 0 || type === arr.name) {
+            nowArray.push(JSON.parse(JSON.stringify(arr)));
+            if (arr.name === 0) {
+              this.mapIcon = new BMap.Icon(icons, new BMap.Size(100, 80)); //图标
+            } else if (arr.name === 1) {
+              this.mapIcon = new BMap.Icon(icon1, new BMap.Size(100, 100)); //图标
+            } else if (arr.name === 2) {
+              this.mapIcon = new BMap.Icon(icon2, new BMap.Size(88, 88)); //图标
+            } else if (arr.name === 3) {
+              this.mapIcon = new BMap.Icon(iconCar, new BMap.Size(100, 100)); //图标
+            }
+            x = arr.coordinateX;
+            y = arr.coordinateY;
+            let marker = new BMap.Marker(new BMap.Point(arr.coordinateX, arr.coordinateY), {icon: this.mapIcon});
+            //把标注添加到地图上
+            this.map.addOverlay(marker);
+            let content = "<table style='font-size: 12px;display:block;width: 280px;height: 320px;overflow:scroll;'>";
+            content += "<tr style='height: 50px;margin-left: 20px'><td>设备编号：<input type='text' value = " + arr.date + "></tr></td>";
+            content += "<tr style='height: 50px;margin-top: 20px'><td>井盖编号：<input type='text' value =" + arr.names + " ></td></tr>";
+            content += "<tr style='height: 50px;margin-top: 20px'><td>管理单位：<input type='text' value = " + arr.ManagementUnit + "></tr></td>";
+            content += "<tr style='height: 50px;margin-top: 20px'><td>生产厂家：<input type='text' value = " + arr.Manufacturer + "></tr></td>";
+            content += "<tr style='height: 50px;margin-top: 20px'><td>安装单位：<input type='text' value =" + arr.Installation + "></tr></td>";
+            content += "<tr style='height: 50px;margin-top: 20px'><td>安装日期：<input type='text' value =" + arr.installDate + "></tr></td>";
+            content += "<tr style='height: 50px;margin-top: 20px'><td>使用寿命：<input type='text' value =" + arr.ServiceLife + '年' + "  ></tr></td>";
+            content += "<tr style='height: 50px;margin-bottom: 40px'><td>井盖坐标：<input type='text' value =" + 'X:' + arr.coordinateX + 'Y:' + arr.coordinateY + "></tr></td>";
+            content += "<div style='position: absolute;bottom: -3px;background:#fff;height: 37px;width: 100%;'><button class='reduction' style='padding: 3px 15px;float: left;margin-left: 35px;margin-top: 3px'>井盖复位</button><button class='close' style='padding: 3px 15px;float: right;margin-right: 15px;margin-top: 3px'>关闭</button><button class='yudad' id='yd' + i +  style='padding: 3px 15px;float: right;margin-right: 10px;margin-top: 3px'>分派</button></div>";
+            content += "</table>";
+            let infowindow = new BMap.InfoWindow(content);
+            marker.addEventListener("click", function () {
+              this.openInfoWindow(infowindow);
+              setTimeout(function () {
+                //人员分派
+                document.getElementsByClassName('yudad')[0].onclick = function () {
+                  _this.Assignment = true;
+                  _this.nowData = arr;
+                  //点击值存入
+                  _this.$refs['tree2'].setCheckedKeys(_this.nowData.selectPerson)
+                };
+                document.getElementsByClassName('close')[0].onclick = function () {
+                  document.querySelector('.BMap_pop').style.display = "none";
+                  document.querySelector('.BMap_shadow').style.display = "none";
+                };
+                //井盖复位
+                document.getElementsByClassName('reduction')[0].onclick = function () {
+                  //接口
+                  _this.nowData = arr;
+                  _this.inquiry(arr.name);
+                  this.jgtype = type;
+                };
+              }, 100)
+            });
+            this.markerMap[arr.coordinateX + "_" + arr.coordinateY] = marker;
           }
+        }
+        let table = null,
+          mes = '';
+        switch (type) {
+          case 0:
+            mes = '没有设备';
+            table = this.$refs.modalTable1[0];
+            break;
+          case 1:
+            mes = '没有离线设备';
+            table = this.$refs.modalTable2[0];
+            break;
+          case 2:
+            mes = '没有超时设备';
+            table = this.$refs.modalTable3[0];
+            break;
+          case 3:
+            mes = '没有报警设备';
+            table = this.$refs.modalTable4[0];
+            break;
+        }
+        if (nowArray.length === 0) {
+          this.$message.warning(mes);
+        } else {
+          table.changeData(nowArray);
+          table.hideOrShow(true);
           //设置标注的经纬度
-          this.map.centerAndZoom(new BMap.Point(arr.coordinateX, arr.coordinateY + 0.017), 14); //
-          let marker = new BMap.Marker(new BMap.Point(arr.coordinateX, arr.coordinateY), {icon: this.mapIcon});
-          //把标注添加到地图上
-          this.map.addOverlay(marker);
-          let content = "<table style='font-size: 12px;display:block;width: 280px;height: 320px;overflow:scroll;'>";
-          content += "<tr style='height: 50px;margin-left: 20px'><td>设备编号：<input type='text' value = " + arr.date + "></tr></td>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>井盖编号：<input type='text' value =" + arr.names + " ></td></tr>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>管理单位：<input type='text' value = " + arr.ManagementUnit + "></tr></td>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>生产厂家：<input type='text' value = " + arr.Manufacturer + "></tr></td>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>安装单位：<input type='text' value =" + arr.Installation + "></tr></td>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>安装日期：<input type='text' value =" + arr.installDate + "></tr></td>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>使用寿命：<input type='text' value =" + arr.ServiceLife + '年' + "  ></tr></td>";
-          content += "<tr style='height: 50px;margin-bottom: 40px'><td>井盖坐标：<input type='text' value =" + 'X:' + arr.coordinateX + 'Y:' + arr.coordinateY + "></tr></td>";
-          content += "<div style='position: absolute;bottom: -3px;background:#fff;height: 37px;width: 100%;'><button class='reduction' style='padding: 3px 15px;float: left;margin-left: 35px;margin-top: 3px'>井盖复位</button><button class='close' style='padding: 3px 15px;float: right;margin-right: 15px;margin-top: 3px'>关闭</button><button class='yudad' style='padding: 3px 15px;float: right;margin-right: 10px;margin-top: 3px'>分派</button></div>";
-          content += "</table>";
-          let infowindow = new BMap.InfoWindow(content);
-          marker.addEventListener("click", function () {
-            this.openInfoWindow(infowindow);
-            setTimeout(function () {
-              document.getElementsByClassName('yudad')[0].onclick = function () {
-                alert(0);
-              };
-              document.getElementsByClassName('close')[0].onclick = function () {
-                document.querySelector('.BMap_pop').style.display = "none";
-                document.querySelector('.BMap_shadow').style.display = "none";
-              };
-              document.getElementsByClassName('reduction')[0].onclick = function () {
-                alert(2);
-              };
-            }, 100)
-          });
-          this.markerMap[arr.coordinateX + "_" + arr.coordinateY] = marker;
+          this.map.centerAndZoom(new BMap.Point(x, y), type === 0 ? 13 : 14); //
         }
         this.Cmask = false;
-      },
-      // 施工超时设备列表
-      Constructiontimeout() {
-        let Alar = this.Timeoutlist;
-        for (let i = 0; i < Alar.length; i++) {
-          let arr = Alar[i];
-          this.mapIcon = new BMap.Icon(icon2, new BMap.Size(88, 88)); //图标
-          //设置标注的经纬度
-          this.map.centerAndZoom(new BMap.Point(arr.coordinateX, arr.coordinateY + 0.017), 14); //
-          let marker = new BMap.Marker(new BMap.Point(arr.coordinateX, arr.coordinateY), {icon: this.mapIcon});
-          //把标注添加到地图上
-          this.map.addOverlay(marker);
-          let content = "<table style='font-size: 12px;display:block;width: 280px;height: 320px;overflow:scroll;'>";
-          content += "<tr style='height: 50px;margin-left: 20px'><td>设备编号：<input type='text' value = " + arr.date + "></tr></td>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>井盖编号：<input type='text' value =" + arr.names + " ></td></tr>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>管理单位：<input type='text' value = " + arr.ManagementUnit + "></tr></td>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>生产厂家：<input type='text' value = " + arr.Manufacturer + "></tr></td>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>安装单位：<input type='text' value =" + arr.Installation + "></tr></td>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>安装日期：<input type='text' value =" + arr.installDate + "></tr></td>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>使用寿命：<input type='text' value =" + arr.ServiceLife + '年' + "  ></tr></td>";
-          content += "<tr style='height: 50px;margin-bottom: 40px'><td>井盖坐标：<input type='text' value =" + 'X:' + arr.coordinateX + 'Y:' + arr.coordinateY + "></tr></td>";
-          content += "<div style='position: absolute;bottom: -3px;background:#fff;height: 37px;width: 100%;'><button class='reduction' style='padding: 3px 15px;float: left;margin-left: 35px;margin-top: 3px'>井盖复位</button><button class='close' style='padding: 3px 15px;float: right;margin-right: 15px;margin-top: 3px'>关闭</button><button class='yudad' style='padding: 3px 15px;float: right;margin-right: 10px;margin-top: 3px'>分派</button></div>";
-          content += "</table>";
-          let infowindow = new BMap.InfoWindow(content);
-          marker.addEventListener("click", function () {
-            this.openInfoWindow(infowindow);
-            setTimeout(function () {
-              document.getElementsByClassName('yudad')[0].onclick = function () {
-                alert(0);
-              };
-              document.getElementsByClassName('close')[0].onclick = function () {
-                document.querySelector('.BMap_pop').style.display = "none";
-                document.querySelector('.BMap_shadow').style.display = "none";
-              };
-              document.getElementsByClassName('reduction')[0].onclick = function () {
-                alert(2);
-              };
-            }, 100)
-          });
-          this.markerMap[arr.coordinateX + "_" + arr.coordinateY] = marker;
+        if (type2 && type2 !== 0) {
+          this.auto(type2);
         }
-        this.Cmask = false;
-      },
-      //离线设备列表
-      offlineequipment() {
-        let Alar = this.Offlinelist;
-        for (let i = 0; i < Alar.length; i++) {
-          let arr = Alar[i];
-          this.mapIcon = new BMap.Icon(icon1, new BMap.Size(100, 100)); //图标
-          //设置标注的经纬度
-          this.map.centerAndZoom(new BMap.Point(arr.coordinateX, arr.coordinateY + 0.017), 14); //
-          let marker = new BMap.Marker(new BMap.Point(arr.coordinateX, arr.coordinateY), {icon: this.mapIcon});
-          //把标注添加到地图上
-          this.map.addOverlay(marker);
-          let content = "<table style='font-size: 12px;display:block;width: 280px;height: 320px;overflow:scroll;'>";
-          content += "<tr style='height: 50px;margin-left: 20px'><td>设备编号：<input type='text' value = " + arr.date + "></tr></td>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>井盖编号：<input type='text' value =" + arr.names + " ></td></tr>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>管理单位：<input type='text' value = " + arr.ManagementUnit + "></tr></td>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>生产厂家：<input type='text' value = " + arr.Manufacturer + "></tr></td>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>安装单位：<input type='text' value =" + arr.Installation + "></tr></td>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>安装日期：<input type='text' value =" + arr.installDate + "></tr></td>";
-          content += "<tr style='height: 50px;margin-top: 20px'><td>使用寿命：<input type='text' value =" + arr.ServiceLife + '年' + "  ></tr></td>";
-          content += "<tr style='height: 50px;margin-bottom: 40px'><td>井盖坐标：<input type='text' value =" + 'X:' + arr.coordinateX + 'Y:' + arr.coordinateY + "></tr></td>";
-          content += "<div style='position: absolute;bottom: -3px;background:#fff;height: 37px;width: 100%;'><button class='reduction' style='padding: 3px 15px;float: left;margin-left: 35px;margin-top: 3px'>井盖复位</button><button class='close' style='padding: 3px 15px;float: right;margin-right: 15px;margin-top: 3px'>关闭</button><button class='yudad' style='padding: 3px 15px;float: right;margin-right: 10px;margin-top: 3px'>分派</button></div>";
-          content += "</table>";
-          let infowindow = new BMap.InfoWindow(content);
-          marker.addEventListener("click", function () {
-            this.openInfoWindow(infowindow);
-            setTimeout(function () {
-              document.getElementsByClassName('yudad')[0].onclick = function () {
-                alert(0);
-              };
-              document.getElementsByClassName('close')[0].onclick = function () {
-                document.querySelector('.BMap_pop').style.visibility = "hidden";
-                document.querySelector('.BMap_shadow').style.visibility = "hidden";
-              };
-              document.getElementsByClassName('reduction')[0].onclick = function () {
-                alert(2);
-              };
-            }, 100)
-          });
-          this.markerMap[arr.coordinateX + "_" + arr.coordinateY] = marker;
-        }
-        this.Cmask = false;
       },
       mapBut() {
         if (this.isTop) {
@@ -398,6 +450,28 @@
       closeLoading() {
         this.loading.close();
       },
+      //井盖复位
+      inquiry(arr) {
+        let _this = this;
+        this.$confirm('是否确定复位', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }).then(() => {
+          arr = '正常';
+          _this.Cmask = true;
+          //_this.setNewsApi();
+          _this.nowData['name'] = 0;
+          if (this.jgtype !== 0) {
+            this.auto(0, this.jgtype);
+          }
+          _this.Cmask = false;
+          this.$message({
+            type: 'success',
+            message: '井盖复位成功!',
+          });
+        })
+      },
       Topclick() {
         if (this.value10 < 100) {
           this.value10 = this.value10 + 10;
@@ -418,17 +492,35 @@
           this.widthData = 78 + 'px';
         }
       },
+      MapLefts(e){
+        console.log(e,999);
+      },
       Leftbut(index) {
+        let _this = this;
         if (index === 2) {
-          let _this = this;
+          if (this.CallThePolice === 0) {
+            this.mapbottomaudio = false;
+            this.policespan = false;
+            this.disabled = true;
+            _this.Already();
+          } else {
+            this.mapbottomaudio = true;
+            if (this.notify !== null) {
+              this.notify.close();
+            }
+            this.notify = this.$notify.info({
+              title: '提示',
+              message: '可在设置里关闭提示音'
+            });
+          }
           this.Cmask = true;
           this.TopDataIf = true;
+          this.police();
           setTimeout(function () {
-            _this.Wellcoveralarm();
+            _this.showSlider();
           }, 100);
         }
         else if (index === 1) {
-          this.xia = true;
         }
         else if (index === 3) {
         }
@@ -441,7 +533,8 @@
         }
         //FireFox
         else if (docElm.mozRequestFullScreen) {
-          docElm.mozRequestFullScreen();
+          docElm.mozReque
+          stFullScreen();
         }
         //Chrome等
         else if (docElm.webkitRequestFullScreen) {
@@ -453,6 +546,7 @@
         }
       },
       CloseWellCoverMonitoring() {
+        this.mapbottomaudio = false;
         this.TopDataIf = false;
         this.initMap();
         this.Detail = false;
@@ -464,8 +558,6 @@
       // 判断是否出来滚动条
       showSlider: function () {
         this.modalTableDivHeight = this.$refs.ledLeft.getElementsByClassName('ipm').length * 415 - this.$refs.jgDetail.offsetHeight;
-        console.log(this.modalTableDivHeight, '8756555');
-        console.log(this.$refs.jgDetail.offsetHeight);
         if (this.modalTableDivHeight > 0) {
           this.value10 = 100;
           this.sliderIsShow = true;
@@ -479,71 +571,56 @@
           this.sliderIsShow = false;
         }
       },
+      LeftBot(){
+        if(this.LeftA != 0 ){
+          this.LeftA+=20;
+          console.log(this.LeftA)
+        }
 
+      },
+      LeftTop(){
+        if(this.LeftA != -140 ){
+          this.LeftA-=20;
+          console.log(this.LeftA)
+        }
+
+      },
       // 已安装设备列表页
       Already() {
         let _this = this;
-        this.Cmask = true;
+        _this.auto(0);
         setTimeout(function () {
-          _this.auto();
           _this.showSlider();
         }, 100);
         _this.Detail = true;
-        _this.$refs.modalTable1[0].hideOrShow(true);
       },
       //离线设备列表
       lines() {
+        this.auto(1);
+        let _this = this;
+        setTimeout(function () {
+          _this.showSlider();
+        }, 100);
+        _this.Detail = true;
 
-        if (this.Offlinelist.length === 0) {
-          this.$message.warning('没有离线设备');
-        } else {
-          let _this = this;
-          this.Cmask = true;
-
-          setTimeout(function () {
-            _this.showSlider();
-            _this.offlineequipment();
-          }, 100);
-          _this.Detail = true;
-          _this.$refs.modalTable3[0].hideOrShow(true);
-
-        }
       },
       //超时设备列表
       overtimes() {
-
-        if (this.Timeoutlist.length === 0) {
-          this.$message.warning('没有超时设备');
-        } else {
-          let _this = this;
-          this.Cmask = true;
-
-          setTimeout(function () {
-            _this.Constructiontimeout();
-            _this.showSlider();
-          }, 100);
-          _this.Detail = true;
-          _this.$refs.modalTable4[0].hideOrShow(true);
-        }
-
+        this.auto(2);
+        let _this = this;
+        setTimeout(function () {
+          _this.showSlider();
+        }, 100);
+        _this.Detail = true;
       },
-      // 打开警报详细列表页
+      // 打开报警详细列表页
       police() {
-
-        if (this.AlarmDetails.length === 0) {
-          this.$message.warning('没有报警设备');
-        } else {
-          let _this = this;
-          this.Cmask = true;
-
-          setTimeout(function () {
-            _this.showSlider();
-            _this.Wellcoveralarm();
-          }, 100);
-          _this.Detail = true;
-          _this.$refs.modalTable2[0].hideOrShow(true);
-
-        }
+        this.auto(3);
+        let _this = this;
+        setTimeout(function () {
+          _this.showSlider();
+        }, 100);
+        _this.Detail = true;
       },
       // 点击关闭详情页
       closeAll() {
@@ -560,28 +637,100 @@
       // 分页
       handleCurrentChange1: function (currentPage) {//页码切换
         this.currentPage1 = currentPage;
-        console.log(this.currentPage1);
       },
       // 获取moke数据(列表数据)
-      setNewsApi: function () {
-
+      setNewsApi() {
         api.post('/news/index')
           .then(res => {
-            console.log(res, 'res');
-            this.$refs.modalTable1[0].changeData(res.articles);  //所有设备
-            this.$refs.modalTable2[0].changeData(res.aiu);   //报警
-            this.$refs.modalTable3[0].changeData(res.Offline);  //离线
-            this.$refs.modalTable4[0].changeData(res.overtime);  //超时
-            this.AlarmDetails = res.aiu;
+            console.log(res);
             this.alreadyInstalled = res.articles;
-            this.Timeoutlist = res.overtime;
-            this.Offlinelist = res.Offline;
-            this.CallThePolice = this.AlarmDetails.length;
+            let c = [],
+              d = [],
+              e = [];
+            for (let i = 0; i < this.alreadyInstalled.length; i++) {
+              let b = this.alreadyInstalled[i];
+              if (b.name === 3) {
+                c.push(b.name);
+                this.CallThePolice = c.length;
+              } else if (b.name === 1) {
+                d.push(b.name);
+                this.OffLine = d.length;
+              } else if (b.name === 2) {
+                e.push(b.name);
+                this.ConstructionOpensOvertime = e.length;
+              }
+            }
+
+            // this.Timeoutlist = res.articles;
+            // this.Offlinelist = res.articles;
             this.AlreadyInstalled = this.alreadyInstalled.length;
-            this.OffLine = this.Offlinelist.length;
-            this.ConstructionOpensOvertime = this.Timeoutlist.length;
           });
       },
+      //打开设置
+      SoundEetting() {
+        this.SetUp = true;
+      },
+      closed(){
+        this.LinkState = '已关闭';
+        this.WellColor = 'red';
+      },
+      //树形控件人员分配
+      filterNode(value, data) {
+        if (!value) return true;
+        return data.label.indexOf(value) !== -1;
+      },
+      //确定分派
+      DetermineAssignment() {
+        //掉接口向后台发送成功后执行下步
+        this.nowData['selectPerson'] = this.$refs.tree2.getCheckedKeys();
+        console.log(this.sha);
+        this.tankuang('是否确定分派人员?', '人员分配成功!');
+      },
+      tankuang(yu, ha) {
+        let _this = this;
+        this.$confirm(yu, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          setTimeout(function () {
+            _this.Assignment = false
+          }, 1400);
+          this.$message({
+            type: 'success',
+            message: ha,
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消'
+          });
+        });
+      },
+      initWebSocket(){
+        let Socket  = new WebSocket("ws://localhost:8081/websocket");
+        console.log(Socket.readyState,'Socket.readyState');
+        this.Closed = '#fff';
+        Socket.onopen = function()
+        {
+          // Web Socket 已连接上，使用 send() 方法发送数据
+          Socket.send("发送数据");
+          alert("数据发送中...");
+        };
+
+        Socket.onmessage = function (evt)
+        {
+          var received_msg = evt.data;
+          alert("数据已接收...");
+        };
+
+        Socket.onclose = function()
+        {
+          // this.closed();
+          // 关闭 websocket
+          alert('连接已中断');
+        };
+      }
 
       //mock井盖基本信息
       /*Secondcover: function() {
@@ -614,26 +763,38 @@
     },
     watch: {
       value10: function (d1, d2) {
-        console.log(d1, 1000);
         let top = this.modalTableDivHeight / 100 * (100 - d1);
-        console.log(top, 'top');
         this.$refs.ledLeft.style.marginTop = top === 0 ? 0 : '-' + top + 'px';
+      },
+      //查询树形控件人员分配
+      filterText(val) {
+        this.$refs.tree2.filter(val);
+      },
+      checked() {
+        if (this.checked == true) {
+          this.mapbottomaudio = false;
+        } else {
+          this.mapbottomaudio = true;
+        }
+      },
+      LeftA:function (c1) {
+        console.log(c1,'c1c1c1');
+        this.$refs.leftNavAlls.style.marginTop = c1 + 'px';
       }
     },
     mounted() {
       // 引入地图
       this.initMap();
-      /*let websocket  = new WebSocket("ws://localhost:8081/websocket");
-      console.log(websocket)*/
-      // window.addEventListener('scroll', this.handleScroll);
-      let scrollTop = window.pageYOffset;
-      console.log(scrollTop);
     },
     created() {
+      // this.initWebSocket();  //开启wensocket
       this.setNewsApi();
       // this.Secondcover();
-      console.log(this.tableData, 8765432);
     },
+ /*   destroyed: function() {
+      //页面销毁时关闭长连接
+      this.websocketclose();
+    },*/
     filters: {
       toLowCase: function (str) {
         if (str == '0') {
@@ -734,382 +895,388 @@
     background: #5d81b5;
     position: absolute;
     top: 110px;
-    z-index: 9998;
+    z-index: 2000;
     border-bottom: 2px solid #86b1f7;
     border-top: 2px solid #86b1f7;
     border-right: 2px solid #86b1f7;
     border-radius: 0 10px 10px 0;
-    /*overflow:hidden;*/
+    overflow:hidden;
   }
+   .leftNavAll{
+     width: 100%;
+     height: 100%;
+     /*overflow: hidden;*/
+     /*overflow:auto;*/
 
-  .map-LeftNavigation-ul {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    overflow: hidden;
-    /*overflow-y: scroll;*/
-  }
+   padding-top: 18px;
+     padding-bottom: 20px;
+   div{
+     width: 100%;
+     height: 13%;
+   }
+ }
 
-  .map-LeftNavigation-li {
-    width: 100%;
-    height: 68px;
-    border-bottom: 1px solid #000;
-    cursor: pointer;
-  }
+.map-LeftNavigation-li {
+  width: 100%;
+  height: 68px;
+  border-bottom: 1px solid #000;
+  cursor: pointer;
+}
 
-  .map-LeftNavigation-li :hover {
-    img {
-      width: 50%;
-      height: 70%;
-    }
-  }
-
-  .tb {
-    height: 17px;
-    width: 100%;
-    background: #2f558a;
-    position: absolute;
-    cursor: pointer;
-  }
-
-  .map-LeftNavigation-top {
-    top: 0;
-    border-radius: 0 10px 0 0;
-  }
-
-  .map-LeftNavigation-bottom {
-    bottom: 0;
-    border-radius: 0 0 10px 0;
-  }
-
-  .map-LeftNavigation-but {
-    width: 12px;
-    height: 65px;
-    background: #b4d3fc;
-    position: absolute;
-    right: -12px;
-    left: 103%;
-    top: 45%;
-    border-radius: 0 20px 20px 0;
-    line-height: 70px;
-    cursor: pointer;
-    font-size: 18px;
-    box-shadow: -3px 0 5px #333;
-  }
-
-  .map-LeftNavigation-but:hover {
-    background: #fdd974;
-  }
-
-  .map-LeftNavigation-li-spant {
-    width: 100%;
+.map-LeftNavigation-li :hover {
+  img {
+    width: 50%;
     height: 70%;
   }
+}
 
-  .map-LeftNavigation-li-spant img {
-    margin-top: 6px;
-  }
+.tb {
+  height: 17px;
+  width: 100%;
+  background: #2f558a;
+  position: absolute;
+  cursor: pointer;
+}
 
-  .map-LeftNavigation-li-spanb {
-    width: 100%;
-    height: 30%;
-    font-size: 13px;
-    color: #fff;
-    line-height: 21px;
-  }
+.map-LeftNavigation-top {
+  top: 0;
+  border-radius: 0 10px 0 0;
+}
 
-  .map-BottomNavigation {
-    width: 100%;
-    height: 27px;
-    background: #2b4d77;
-    position: fixed;
-    bottom: 0;
-    z-index: 9999;
-  }
+.map-LeftNavigation-bottom {
+  bottom: 0;
+  border-radius: 0 0 10px 0;
+}
+.Lall{
 
-  .map-BottomNavigation-left {
+}
+.map-LeftNavigation-but {
+  width: 12px;
+  height: 65px;
+  background: #b4d3fc;
+  position: absolute;
+  right: -12px;
+  left: 103%;
+  top: 45%;
+  border-radius: 0 20px 20px 0;
+  line-height: 70px;
+  cursor: pointer;
+  font-size: 18px;
+  box-shadow: -3px 0 5px #333;
+}
+
+.map-LeftNavigation-but:hover {
+  background: #fdd974;
+}
+
+.map-LeftNavigation-li-spant {
+  width: 100%;
+  height: 70%;
+}
+
+.map-LeftNavigation-li-spant img {
+  margin-top: 6px;
+}
+
+.map-LeftNavigation-li-spanb {
+  width: 100%;
+  height: 30%;
+  font-size: 13px;
+  color: #fff;
+  line-height: 21px;
+}
+
+.map-BottomNavigation {
+  width: 100%;
+  height: 27px;
+  background: #2b4d77;
+  position: fixed;
+  bottom: 0;
+  z-index: 2000;
+}
+
+.map-BottomNavigation-left {
+  width: 20%;
+  height: 61%;
+  margin-left: 20px;
+  margin-top: 6px;
+}
+
+.map-BottomNavigation-left-img {
+  width: 16px;
+  height: 15px;
+  background-image: url('../assets/images/pic_sobig.png');
+  float: left;
+  cursor: pointer;
+}
+
+.map-BottomNavigation-left-content {
+  color: #fff;
+  font-size: 12px;
+  text-indent: -90px;
+  line-height: 16px;
+}
+
+.map-BottomNavigation-right {
+  width: 35%;
+  height: 100%;
+  position: absolute;
+  right: -58px;
+  top: 7px;
+  font-size: 12px;
+  color: #fff;
+}
+
+.map-BottomNavigation-right-coordinate {
+  width: 230px;
+  position: absolute;
+  right: 40%;
+  display: flex;
+  top: 1px;
+  /*span {
     width: 20%;
-    height: 61%;
-    margin-left: 20px;
-    margin-top: 6px;
-  }
-
-  .map-BottomNavigation-left-img {
-    width: 16px;
-    height: 15px;
-    background-image: url('../assets/images/pic_sobig.png');
-    float: left;
-    cursor: pointer;
-  }
-
-  .map-BottomNavigation-left-content {
-    color: #fff;
-    font-size: 12px;
-    text-indent: -90px;
+    height: 100%;
     line-height: 16px;
   }
-
-  .map-BottomNavigation-right {
-    width: 35%;
+  div {
+    width: 70%;
     height: 100%;
-    position: absolute;
-    right: -58px;
-    top: 7px;
-    font-size: 12px;
-    color: #fff;
-  }
+  }*/
+}
 
-  .map-BottomNavigation-right-coordinate {
-    width: 230px;
-    position: absolute;
-    right: 40%;
+.BMap_pop {
+  background: red;
+}
+
+.BMap_top {
+  box-sizing: content-box;
+  overflow: hidden;
+  z-index: 999;
+  position: absolute;
+  left: 1px;
+  top: 0px;
+  width: 310px;
+  height: 25px;
+  background: red;
+}
+
+.map-BottomNavigation-right-scale {
+  position: absolute;
+  right: 22%;
+  top: -1px;
+}
+
+.WellCoverMonitoring {
+  width: 613px;
+  height: 38px;
+  background: #e4e4e4;
+  position: absolute;
+  top: 83px;
+  left: 30%;
+  z-index: 999;
+  -webkit-box-shadow: 0 0 13px 3px;
+  box-shadow: 0 0 19px 1px;
+  border-radius: 0px 0px 10px 10px;
+  ul {
+    width: 100%;
+    height: 100%;
     display: flex;
-    top: 1px;
-    /*span {
-      width: 20%;
-      height: 100%;
-      line-height: 16px;
-    }
-    div {
-      width: 70%;
-      height: 100%;
-    }*/
-  }
-
-  .BMap_pop {
-    background: red;
-  }
-
-  .BMap_top {
-    box-sizing: content-box;
-    overflow: hidden;
-    z-index: 999;
-    position: absolute;
-    left: 1px;
-    top: 0px;
-    width: 310px;
-    height: 25px;
-    background: red;
-  }
-
-  .map-BottomNavigation-right-scale {
-    position: absolute;
-    right: 22%;
-    top: -1px;
-  }
-
-  .WellCoverMonitoring {
-    width: 613px;
-    height: 38px;
-    background: #e4e4e4;
-    position: absolute;
-    top: 83px;
-    left: 30%;
-    z-index: 999;
-    -webkit-box-shadow: 0 0 13px 3px;
-    box-shadow: 0 0 19px 1px;
-    border-radius: 0px 0px 10px 10px;
-    ul {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      padding: 0;
-      margin: 0;
-      justify-content: center;
-      align-items: center;
-      li {
-        flex: 1;
-        font-size: 12px;
-        list-style: none;
-        color: #2c4586;
-        cursor: pointer;
-        span {
-          position: absolute;
-          right: 80px;
-          width: 88px;
-          height: 20px;
-          top: 8px;
-          /* background: salmon; */
-          border: 1px solid #eecdcd;
-          border-radius: 5px;
-        }
-      }
-
-    }
-  }
-
-  .CloseWellCoverMonitoring {
-    cursor: pointer;
-    border-left: 1px solid #5e5e5e;
-  }
-
-  .lis1 {
-    border-right: 1px solid #5e5e5e;
-    line-height: 26px;
-    img {
-      float: left;
-      margin-left: 5px;
-    }
-  }
-
-  .DetailedListOfManholeCovers {
-    width: 28.5%;
-    height: calc(100% - 113px);
-    position: absolute;
-    right: 1px;
-    top: 10.6%;
-    z-index: 9999;
-    overflow: hidden;
-  }
-
-  .DetailedControl {
-    height: 100%;
-    width: 35px;
-    float: right;
-    display: inline-block;
-    .DetailedContens {
-      height: 310px;
-      width: 100%;
-      background: #1d4173;
-      border-radius: 6px 0 0 6px;
-      box-sizing: border-box;
-      border-left: 1px solid #b4d3fc;
-      position: relative;
-      .DetailedControlBottom {
-        top: 32%;
-      }
-      .DetailedControlTop {
-        top: 5%;
-      }
-      .Dp {
+    padding: 0;
+    margin: 0;
+    justify-content: center;
+    align-items: center;
+    li {
+      flex: 1;
+      font-size: 12px;
+      list-style: none;
+      color: #2c4586;
+      cursor: pointer;
+      span {
         position: absolute;
-        color: #fff;
-        font-size: 50px;
-        z-index: 10001;
-        left: 0%;
-        cursor: pointer;
-        background: none;
-        border: 0;
-        outline: 0 none !important;
+        right: 105px;
+        width: 95px;
+        height: 20px;
+        top: 8px;
+        /* background: salmon; */
+        border: 1px solid #eecdcd;
+        border-radius: 5px;
       }
     }
-  }
 
-  .DetailedLeft {
-    width: 92%;
-    height: auto;
   }
+}
 
-  .ipm {
-    width: 402px;
-    height: 402px;
-    background: #31588d;
-    border-radius: 5px;
-    border: 1px solid #b4d3fc;
-    margin-bottom: 10px;
-    overflow: hidden;
-    p {
-      margin: 0;
-      font-size: 15px;
+.CloseWellCoverMonitoring {
+  cursor: pointer;
+  border-left: 1px solid #5e5e5e;
+}
+
+.lis1 {
+  border-right: 1px solid #5e5e5e;
+  line-height: 26px;
+  img {
+    float: left;
+    margin-left: 5px;
+  }
+}
+
+.DetailedListOfManholeCovers {
+  width: 460px;
+  height: calc(100% - 113px);
+  position: absolute;
+  right: 1px;
+  top: 85px;
+  z-index: 2000;
+  overflow: hidden;
+}
+
+.DetailedControl {
+  height: 100%;
+  width: 35px;
+  float: right;
+  display: inline-block;
+  .DetailedContens {
+    height: 310px;
+    width: 100%;
+    background: #1d4173;
+    border-radius: 6px 0 0 6px;
+    box-sizing: border-box;
+    border-left: 1px solid #b4d3fc;
+    position: relative;
+    .DetailedControlBottom {
+      top: 74%;
+    }
+    .DetailedControlTop {
+      top: 5%;
+    }
+    .Dp {
+      position: absolute;
       color: #fff;
-      font-weight: bold;
+      font-size: 50px;
+      z-index: 10001;
+      left: 0%;
+      cursor: pointer;
+      background: none;
+      border: 0;
+      outline: 0 none !important;
+    }
+  }
+}
+
+.DetailedLeft {
+  width: 92%;
+  height: auto;
+}
+
+.ipm {
+  width: 402px;
+  height: 402px;
+  background: #31588d;
+  border-radius: 5px;
+  border: 1px solid #b4d3fc;
+  margin-bottom: 10px;
+  overflow: hidden;
+  margin-right: 5px;
+  p {
+    margin: 0;
+    font-size: 15px;
+    color: #fff;
+    font-weight: bold;
+    text-align: left;
+    text-indent: 20px;
+    line-height: 30px;
+  }
+  .InstalledForm {
+    width: 96%;
+    height: 91%;
+    background: #eee;
+    margin-left: 2%;
+    p {
+      width: 100%;
+      height: 33px;
+      background: #dfdfdf;
+      font-weight: normal;
       text-align: left;
-      text-indent: 20px;
-      line-height: 30px;
+      text-indent: 14px;
+      color: #000;
+      font-size: 12px;
+      line-height: 33px;
+      border-bottom: 1px solid #bbb;
     }
-    .InstalledForm {
-      width: 96%;
-      height: 91%;
-      background: #eee;
-      margin-left: 2%;
-      p {
-        width: 100%;
-        height: 33px;
-        background: #dfdfdf;
-        font-weight: normal;
-        text-align: left;
-        text-indent: 14px;
-        color: #000;
-        font-size: 12px;
-        line-height: 33px;
-        border-bottom: 1px solid #bbb;
+    .InstalledFormInput {
+      width: 100%;
+      height: 31px;
+      text-align: left;
+      font-size: 12px;
+      line-height: 31px;
+      text-indent: 14px;
+      input {
+        width: 241px;
+        height: 19px;
+        border: 1px solid #a4a4a4;
+        border-radius: 2px;
+        margin-left: 2px;
       }
-      .InstalledFormInput {
-        width: 100%;
-        height: 31px;
-        text-align: left;
+      .InstalledFormBut {
+        /* width: 53px; */
+        height: 20px;
+        border: 1px solid #abc6dd;
+        color: #042271;
         font-size: 12px;
-        line-height: 31px;
-        text-indent: 14px;
-        input {
-          width: 241px;
-          height: 19px;
-          border: 1px solid #a4a4a4;
-          border-radius: 2px;
-          margin-left: 2px;
-        }
-        .InstalledFormBut {
-          /* width: 53px; */
-          height: 20px;
-          border: 1px solid #abc6dd;
-          color: #042271;
-          font-size: 12px;
-          cursor: pointer;
-          margin-right: 19px;
-          border-radius: 2px;
-          margin-top: 6px;
-          /* display: inline-block; */
-          float: right;
-        }
-      }
-      #BMap_pop {
-        background: red;
+        cursor: pointer;
+        margin-right: 19px;
+        border-radius: 2px;
+        margin-top: 6px;
+        /* display: inline-block; */
+        float: right;
       }
     }
+    #BMap_pop {
+      background: red;
+    }
   }
+}
 
-  .InstalledEquipment {
-  }
+.InstalledEquipment {
+}
 
-  .AlarmClos {
-    width: 21px;
-    height: 21px;
-    background: green;
-    background-image: url('../assets/images/pic_close.png');
-    float: right;
-    margin-right: 5px;
-    border-radius: 4px;
-    cursor: pointer;
-  }
+.AlarmClos {
+  width: 21px;
+  height: 21px;
+  background: green;
+  background-image: url('../assets/images/pic_close.png');
+  float: right;
+  margin-right: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+}
 
-  .InstallClos {
-    width: 21px;
-    height: 21px;
-    background: seagreen;
-    background-image: url('../assets/images/pic_close.png');
-    float: right;
-    margin-right: 5px;
-    border-radius: 4px;
-    cursor: pointer;
-  }
+.InstallClos {
+  width: 21px;
+  height: 21px;
+  background: seagreen;
+  background-image: url('../assets/images/pic_close.png');
+  float: right;
+  margin-right: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+}
 
-  .xiacaozuo {
-    z-index: 9999;
-    position: absolute;
-    top: 30%;
-    height: 40px;
-    width: 30%;
-  }
+.xiacaozuo {
+  z-index: 2000;
+  position: absolute;
+  top: 30%;
+  height: 40px;
+  width: 30%;
+}
 
-  #allmap .BMap_scaleCtrl {
-    height: 0;
-    display: none;
-  }
+#allmap .BMap_scaleCtrl {
+  height: 0;
+  display: none;
+}
 </style>
 <style>
-  .BMap_pop img {
+  .BMap_top img {
     display: none;
   }
 
@@ -1162,10 +1329,14 @@
   }
 
   .el-slider.is-vertical .el-slider__button-wrapper {
-    z-index: 9999;
+    z-index: 2000;
   }
 
   .el-slider__bar {
     background-color: #ffffff;
+  }
+
+  .el-dialog__wrapper {
+    z-index: 30000;
   }
 </style>

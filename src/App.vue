@@ -25,6 +25,10 @@ export default {
   body{
     height: 100%;
     overflow: hidden;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none;
   }
 #app {
   width: 100%;

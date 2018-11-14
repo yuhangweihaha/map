@@ -1,15 +1,8 @@
 <template>
-  <div>
-    <div class="map-LeftNavigation-but" @click="MapLeft">▶</div>
-    <div class="map-LeftNavigation-top tb">▲</div>
-    <ul class="map-LeftNavigation-ul">
-      <li class="map-LeftNavigation-li" @click="Leftbut(index)">
+      <div class="map-LeftNavigation-li" @click="Leftbut(index)">
         <div class="map-LeftNavigation-li-spant"><img :src='imgs' alt=""></div>
         <div class="map-LeftNavigation-li-spanb">{{test}}</div>
-      </li>
-    </ul>
-    <div class="map-LeftNavigation-bottom tb">▼</div>
-  </div>
+    </div>
 </template>
 <script>
   export default {
@@ -21,9 +14,6 @@
       Leftbut(index) {
         console.log(index, 7);
         this.$emit('Leftbut', ['index'])
-      },
-      MapLeft() {
-        this.$emit('MapLeft', '')
       }
     },
 
@@ -48,20 +38,9 @@
     border-radius: 0 10px 10px 0;
     /*overflow:hidden;*/
   }
-
-  .map-LeftNavigation-ul {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    overflow: hidden;
-    /*overflow-y: scroll;*/
-  }
-
   .map-LeftNavigation-li {
     width: 100%;
-    height: 68px;
+    height: 13%;
     border-bottom: 1px solid #000;
     cursor: pointer;
   }
@@ -91,7 +70,7 @@
     border-radius: 0 0 10px 0;
   }
 
-  .map-LeftNavigation-but {
+/*  .map-LeftNavigation-but {
     width: 12px;
     height: 65px;
     background: #b4d3fc;
@@ -104,7 +83,7 @@
     cursor: pointer;
     font-size: 18px;
     box-shadow: -3px 0 5px #333;
-  }
+  }*/
 
   .map-LeftNavigation-but:hover {
     background: #fdd974;
@@ -112,18 +91,18 @@
 
   .map-LeftNavigation-li-spant {
     width: 100%;
-    height: 70%;
+    height: 60%;
   }
 
   .map-LeftNavigation-li-spant img {
-    margin-top: 6px;
+    margin-top: 12px;
   }
 
   .map-LeftNavigation-li-spanb {
     width: 100%;
-    height: 30%;
-    font-size: 13px;
+    height: 40%;
+    font-size: 12px;
     color: #fff;
-    line-height: 21px;
+    line-height: 31px;
   }
 </style>
