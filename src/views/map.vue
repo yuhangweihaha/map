@@ -15,7 +15,8 @@
     <!--井盖监控功能-->
     <div class="WellCoverMonitoring" :style="{top:TopData}" v-if="TopDataIf">
       <ul>
-        <li class="lis1" :style="{color:WellColor,flex:'1.1'}" :class='Closed'><img src="../assets/images/pic_connected.png">
+        <li class="lis1" :style="{color:WellColor,flex:'1.1'}" :class='Closed'><img
+          src="../assets/images/pic_connected.png">
           {{LinkState}}
         </li>
         <li style="flex:1.7" @click="Already">已安装：[ {{AlreadyInstalled}} ] 个</li>
@@ -31,16 +32,16 @@
     </div>
     <!--左侧导航栏-->
 
-      <div class="Lall"  @mousewheel.native="MapLefts(e)">
+    <div class="Lall" @mousewheel.native="MapLefts(e)">
       <div class="map-LeftNavigation-but" @click="MapLeft">▶</div>
       <div class="map-LeftNavigation" :style="{width: widthData}">
-      <div class="map-LeftNavigation-top tb" @click="LeftTop">▲</div>
-      <div class="map-LeftNavigation-bottom tb" @click="LeftBot">▼</div>
-      <div class="leftNavAll" ref="leftNavAlls" >
-        <LaftNavigation v-for="(lis,index) in LeftNav" :index='index' :test="lis.test" :imgs="lis.img"
-                        @Leftbut="Leftbut(index)"></LaftNavigation>
+        <div class="map-LeftNavigation-top tb" @click="LeftTop">▲</div>
+        <div class="map-LeftNavigation-bottom tb" @click="LeftBot">▼</div>
+        <div class="leftNavAll" ref="leftNavAlls">
+          <LaftNavigation v-for="(lis,index) in LeftNav" :index='index' :test="lis.test" :imgs="lis.img" :key="index"
+                          @Leftbut="Leftbut(index)"></LaftNavigation>
+        </div>
       </div>
-    </div>
     </div>
 
     <div class="map-BottomNavigation">
@@ -48,6 +49,7 @@
       <div class="map-BottomNavigation-left">
         <div @click="Fullscreen" class="map-BottomNavigation-left-img"></div>
         <div class="map-BottomNavigation-left-content"> | 操作提示：请按照相关提示正确操作</div>
+
         <!--右侧坐标+比例尺-->
         <audio v-if="mapbottomaudio" style="position: absolute;top:-40px" :src="audios" loop="loop" autoplay="autoplay">
           您的浏览器不支持 audio 标签。
@@ -58,6 +60,7 @@
           </div>
           <div class="map-BottomNavigation-right-scale"><span style="line-height: 15px;">| 比例尺：</span> <span
             style="display:inline-block;width: 60px;">{{scales}}</span></div>
+          <div class="Traffic" @click="Traffics"> 点击查看路况</div>
         </div>
       </div>
     </div>
@@ -82,7 +85,8 @@
       </div>
       <!--左侧表格区域-->
       <div class="DetailedLeft" ref="ledLeft">
-        <modalTable v-for="item in tableData" :title="item.title" :tableData="item.data" :ref="item.name"
+        <modalTable v-for="(item,index) in tableData" :key="index" :title="item.title" :tableData="item.data"
+                    :ref="item.name"
                     @closeAll="closeAll" @listenToChildEvent="showMsgFromChild"></modalTable>
       </div>
     </div>
@@ -147,7 +151,7 @@
         didian: '',
         Cmask: false, //遮罩层
         xia: false,
-        Closed:'Closed',
+        Closed: 'Closed',
         disabled: false,
         LinkState: '已连接', /*链接状态*/
         AlreadyInstalled: '3424', /*已安装的个数*/
@@ -222,6 +226,7 @@
         mapIcon: '',
         markerMap: {},
         blc: '',
+        ctrl: '',        //显示路况
         Assignment: false,  //人员分派
         SetUp: false,    //声音设置
         filterText: '',
@@ -298,7 +303,7 @@
         nowData: '',
         jgtype: 0,
         notify: null,
-        LeftA:0
+        LeftA: 0
       };
     },
     methods: {
@@ -321,6 +326,12 @@
             console.log(_this.scales, ' _this.scales');
           }, 100);
         });
+        // 路况显示
+        this.ctrl = new BMapLib.TrafficControl({
+
+          // showPanel: false //是否显示路况提示面板`
+        });
+
       },
 
       //已安装设备列表
@@ -356,7 +367,7 @@
             content += "<tr style='height: 50px;margin-top: 20px'><td>安装单位：<input type='text' value =" + arr.Installation + "></tr></td>";
             content += "<tr style='height: 50px;margin-top: 20px'><td>安装日期：<input type='text' value =" + arr.installDate + "></tr></td>";
             content += "<tr style='height: 50px;margin-top: 20px'><td>使用寿命：<input type='text' value =" + arr.ServiceLife + '年' + "  ></tr></td>";
-            content += "<tr style='height: 50px;margin-bottom: 40px'><td>井盖坐标：<input type='text' value =" + 'X:' + arr.coordinateX + 'Y:' + arr.coordinateY + "></tr></td>";
+            content += "<tr style='height: 50px;margin-bottom: 40px'><td>井盖坐标：<input type='text' value =" + arr.coordinateX + '、' + arr.coordinateY + "></tr></td>";
             content += "<div style='position: absolute;bottom: -3px;background:#fff;height: 37px;width: 100%;'><button class='reduction' style='padding: 3px 15px;float: left;margin-left: 35px;margin-top: 3px'>井盖复位</button><button class='close' style='padding: 3px 15px;float: right;margin-right: 15px;margin-top: 3px'>关闭</button><button class='yudad' id='yd' + i +  style='padding: 3px 15px;float: right;margin-right: 10px;margin-top: 3px'>分派</button></div>";
             content += "</table>";
             let infowindow = new BMap.InfoWindow(content);
@@ -437,6 +448,13 @@
           this.$refs.jgDetail.style.height = 85.7 + '%';
         }
       },
+      // 显示路况
+      Traffics() {
+        this.map.addControl(this.ctrl);
+        this.ctrl.setAnchor(BMAP_ANCHOR_BOTTOM_RIGHT);
+        const BTN2 = document.getElementById('tcBtn');
+        BTN2.click();
+      },
       // 加载动画
       openFullScreen() {
         this.loading = this.$loading({
@@ -492,8 +510,8 @@
           this.widthData = 78 + 'px';
         }
       },
-      MapLefts(e){
-        console.log(e,999);
+      MapLefts(e) {
+        console.log(e, 999);
       },
       Leftbut(index) {
         let _this = this;
@@ -504,7 +522,10 @@
             this.disabled = true;
             _this.Already();
           } else {
-            this.mapbottomaudio = true;
+            //这里加
+            if (!this.checked) {
+              this.mapbottomaudio = true;
+            }
             if (this.notify !== null) {
               this.notify.close();
             }
@@ -571,16 +592,16 @@
           this.sliderIsShow = false;
         }
       },
-      LeftBot(){
-        if(this.LeftA != 0 ){
-          this.LeftA+=20;
+      LeftBot() {
+        if (this.LeftA != 0) {
+          this.LeftA += 20;
           console.log(this.LeftA)
         }
 
       },
-      LeftTop(){
-        if(this.LeftA != -140 ){
-          this.LeftA-=20;
+      LeftTop() {
+        if (this.LeftA != -140) {
+          this.LeftA -= 20;
           console.log(this.LeftA)
         }
 
@@ -625,7 +646,7 @@
       // 点击关闭详情页
       closeAll() {
         this.hideSlider();
-        if (this.$refs.ledLeft.innerHTML === '<!----><!---->') {
+        if (this.$refs.ledLeft.innerHTML === '<!----><!----><!----><!---->') {
           this.Detail = false;
         }
       },
@@ -642,7 +663,7 @@
       setNewsApi() {
         api.post('/news/index')
           .then(res => {
-            console.log(res);
+            console.log(res, '接口数据');
             this.alreadyInstalled = res.articles;
             let c = [],
               d = [],
@@ -670,7 +691,7 @@
       SoundEetting() {
         this.SetUp = true;
       },
-      closed(){
+      closed() {
         this.LinkState = '已关闭';
         this.WellColor = 'red';
       },
@@ -707,25 +728,22 @@
           });
         });
       },
-      initWebSocket(){
-        let Socket  = new WebSocket("ws://localhost:8081/websocket");
-        console.log(Socket.readyState,'Socket.readyState');
+      initWebSocket() {
+        let Socket = new WebSocket("ws://localhost:8081/websocket");
+        console.log(Socket.readyState, 'Socket.readyState');
         this.Closed = '#fff';
-        Socket.onopen = function()
-        {
+        Socket.onopen = function () {
           // Web Socket 已连接上，使用 send() 方法发送数据
           Socket.send("发送数据");
           alert("数据发送中...");
         };
 
-        Socket.onmessage = function (evt)
-        {
+        Socket.onmessage = function (evt) {
           var received_msg = evt.data;
           alert("数据已接收...");
         };
 
-        Socket.onclose = function()
-        {
+        Socket.onclose = function () {
           // this.closed();
           // 关闭 websocket
           alert('连接已中断');
@@ -777,8 +795,8 @@
           this.mapbottomaudio = true;
         }
       },
-      LeftA:function (c1) {
-        console.log(c1,'c1c1c1');
+      LeftA: function (c1) {
+        console.log(c1, 'c1c1c1');
         this.$refs.leftNavAlls.style.marginTop = c1 + 'px';
       }
     },
@@ -791,10 +809,10 @@
       this.setNewsApi();
       // this.Secondcover();
     },
- /*   destroyed: function() {
-      //页面销毁时关闭长连接
-      this.websocketclose();
-    },*/
+    /*   destroyed: function() {
+         //页面销毁时关闭长连接
+         this.websocketclose();
+       },*/
     filters: {
       toLowCase: function (str) {
         if (str == '0') {
@@ -900,383 +918,449 @@
     border-top: 2px solid #86b1f7;
     border-right: 2px solid #86b1f7;
     border-radius: 0 10px 10px 0;
-    overflow:hidden;
+    overflow: hidden;
   }
-   .leftNavAll{
-     width: 100%;
-     height: 100%;
-     /*overflow: hidden;*/
-     /*overflow:auto;*/
 
-   padding-top: 18px;
-     padding-bottom: 20px;
-   div{
-     width: 100%;
-     height: 13%;
-   }
- }
+  .leftNavAll {
+    width: 100%;
+    height: 100%;
+    /*overflow: hidden;*/
+    /*overflow:auto;*/
 
-.map-LeftNavigation-li {
-  width: 100%;
-  height: 68px;
-  border-bottom: 1px solid #000;
-  cursor: pointer;
-}
+    padding-top: 18px;
+    padding-bottom: 20px;
+    div {
+      width: 100%;
+      height: 13%;
+    }
+  }
 
-.map-LeftNavigation-li :hover {
-  img {
-    width: 50%;
+  .map-LeftNavigation-li {
+    width: 100%;
+    height: 68px;
+    border-bottom: 1px solid #000;
+    cursor: pointer;
+  }
+
+  .map-LeftNavigation-li :hover {
+    img {
+      width: 50%;
+      height: 70%;
+    }
+  }
+
+  .tb {
+    height: 17px;
+    width: 100%;
+    background: #2f558a;
+    position: absolute;
+    cursor: pointer;
+  }
+
+  .map-LeftNavigation-top {
+    top: 0;
+    border-radius: 0 10px 0 0;
+  }
+
+  .map-LeftNavigation-bottom {
+    bottom: 0;
+    border-radius: 0 0 10px 0;
+  }
+
+  .Lall {
+
+  }
+
+  .map-LeftNavigation-but {
+    width: 12px;
+    height: 65px;
+    background: #b4d3fc;
+    position: absolute;
+    right: -12px;
+    left: 103%;
+    top: 45%;
+    border-radius: 0 20px 20px 0;
+    line-height: 70px;
+    cursor: pointer;
+    font-size: 18px;
+    box-shadow: -3px 0 5px #333;
+  }
+
+  .map-LeftNavigation-but:hover {
+    background: #fdd974;
+  }
+
+  .map-LeftNavigation-li-spant {
+    width: 100%;
     height: 70%;
   }
-}
 
-.tb {
-  height: 17px;
-  width: 100%;
-  background: #2f558a;
-  position: absolute;
-  cursor: pointer;
-}
+  .map-LeftNavigation-li-spant img {
+    margin-top: 6px;
+  }
 
-.map-LeftNavigation-top {
-  top: 0;
-  border-radius: 0 10px 0 0;
-}
+  .map-LeftNavigation-li-spanb {
+    width: 100%;
+    height: 30%;
+    font-size: 13px;
+    color: #fff;
+    line-height: 21px;
+  }
 
-.map-LeftNavigation-bottom {
-  bottom: 0;
-  border-radius: 0 0 10px 0;
-}
-.Lall{
+  .Traffic {
+    position: absolute;
+    top: -2px;
+    right: 20%;
+    color: #fff;
+    font-size: 12px;
+    cursor: pointer;
+  }
 
-}
-.map-LeftNavigation-but {
-  width: 12px;
-  height: 65px;
-  background: #b4d3fc;
-  position: absolute;
-  right: -12px;
-  left: 103%;
-  top: 45%;
-  border-radius: 0 20px 20px 0;
-  line-height: 70px;
-  cursor: pointer;
-  font-size: 18px;
-  box-shadow: -3px 0 5px #333;
-}
+  .map-BottomNavigation {
+    width: 100%;
+    height: 27px;
+    background: #2b4d77;
+    position: fixed;
+    bottom: 0;
+    z-index: 2000;
+  }
 
-.map-LeftNavigation-but:hover {
-  background: #fdd974;
-}
-
-.map-LeftNavigation-li-spant {
-  width: 100%;
-  height: 70%;
-}
-
-.map-LeftNavigation-li-spant img {
-  margin-top: 6px;
-}
-
-.map-LeftNavigation-li-spanb {
-  width: 100%;
-  height: 30%;
-  font-size: 13px;
-  color: #fff;
-  line-height: 21px;
-}
-
-.map-BottomNavigation {
-  width: 100%;
-  height: 27px;
-  background: #2b4d77;
-  position: fixed;
-  bottom: 0;
-  z-index: 2000;
-}
-
-.map-BottomNavigation-left {
-  width: 20%;
-  height: 61%;
-  margin-left: 20px;
-  margin-top: 6px;
-}
-
-.map-BottomNavigation-left-img {
-  width: 16px;
-  height: 15px;
-  background-image: url('../assets/images/pic_sobig.png');
-  float: left;
-  cursor: pointer;
-}
-
-.map-BottomNavigation-left-content {
-  color: #fff;
-  font-size: 12px;
-  text-indent: -90px;
-  line-height: 16px;
-}
-
-.map-BottomNavigation-right {
-  width: 35%;
-  height: 100%;
-  position: absolute;
-  right: -58px;
-  top: 7px;
-  font-size: 12px;
-  color: #fff;
-}
-
-.map-BottomNavigation-right-coordinate {
-  width: 230px;
-  position: absolute;
-  right: 40%;
-  display: flex;
-  top: 1px;
-  /*span {
+  .map-BottomNavigation-left {
     width: 20%;
-    height: 100%;
+    height: 61%;
+    margin-left: 20px;
+    margin-top: 6px;
+  }
+
+  .map-BottomNavigation-left-img {
+    width: 16px;
+    height: 15px;
+    background-image: url('../assets/images/pic_sobig.png');
+    float: left;
+    cursor: pointer;
+  }
+
+  .map-BottomNavigation-left-content {
+    color: #fff;
+    font-size: 12px;
+    text-indent: -90px;
     line-height: 16px;
   }
-  div {
-    width: 70%;
+
+  .map-BottomNavigation-right {
+    width: 35%;
     height: 100%;
-  }*/
-}
-
-.BMap_pop {
-  background: red;
-}
-
-.BMap_top {
-  box-sizing: content-box;
-  overflow: hidden;
-  z-index: 999;
-  position: absolute;
-  left: 1px;
-  top: 0px;
-  width: 310px;
-  height: 25px;
-  background: red;
-}
-
-.map-BottomNavigation-right-scale {
-  position: absolute;
-  right: 22%;
-  top: -1px;
-}
-
-.WellCoverMonitoring {
-  width: 613px;
-  height: 38px;
-  background: #e4e4e4;
-  position: absolute;
-  top: 83px;
-  left: 30%;
-  z-index: 999;
-  -webkit-box-shadow: 0 0 13px 3px;
-  box-shadow: 0 0 19px 1px;
-  border-radius: 0px 0px 10px 10px;
-  ul {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    padding: 0;
-    margin: 0;
-    justify-content: center;
-    align-items: center;
-    li {
-      flex: 1;
-      font-size: 12px;
-      list-style: none;
-      color: #2c4586;
-      cursor: pointer;
-      span {
-        position: absolute;
-        right: 105px;
-        width: 95px;
-        height: 20px;
-        top: 8px;
-        /* background: salmon; */
-        border: 1px solid #eecdcd;
-        border-radius: 5px;
-      }
-    }
-
-  }
-}
-
-.CloseWellCoverMonitoring {
-  cursor: pointer;
-  border-left: 1px solid #5e5e5e;
-}
-
-.lis1 {
-  border-right: 1px solid #5e5e5e;
-  line-height: 26px;
-  img {
-    float: left;
-    margin-left: 5px;
-  }
-}
-
-.DetailedListOfManholeCovers {
-  width: 460px;
-  height: calc(100% - 113px);
-  position: absolute;
-  right: 1px;
-  top: 85px;
-  z-index: 2000;
-  overflow: hidden;
-}
-
-.DetailedControl {
-  height: 100%;
-  width: 35px;
-  float: right;
-  display: inline-block;
-  .DetailedContens {
-    height: 310px;
-    width: 100%;
-    background: #1d4173;
-    border-radius: 6px 0 0 6px;
-    box-sizing: border-box;
-    border-left: 1px solid #b4d3fc;
-    position: relative;
-    .DetailedControlBottom {
-      top: 74%;
-    }
-    .DetailedControlTop {
-      top: 5%;
-    }
-    .Dp {
-      position: absolute;
-      color: #fff;
-      font-size: 50px;
-      z-index: 10001;
-      left: 0%;
-      cursor: pointer;
-      background: none;
-      border: 0;
-      outline: 0 none !important;
-    }
-  }
-}
-
-.DetailedLeft {
-  width: 92%;
-  height: auto;
-}
-
-.ipm {
-  width: 402px;
-  height: 402px;
-  background: #31588d;
-  border-radius: 5px;
-  border: 1px solid #b4d3fc;
-  margin-bottom: 10px;
-  overflow: hidden;
-  margin-right: 5px;
-  p {
-    margin: 0;
-    font-size: 15px;
+    position: absolute;
+    right: -58px;
+    top: 7px;
+    font-size: 12px;
     color: #fff;
-    font-weight: bold;
-    text-align: left;
-    text-indent: 20px;
-    line-height: 30px;
   }
-  .InstalledForm {
-    width: 96%;
-    height: 91%;
-    background: #eee;
-    margin-left: 2%;
-    p {
-      width: 100%;
-      height: 33px;
-      background: #dfdfdf;
-      font-weight: normal;
-      text-align: left;
-      text-indent: 14px;
-      color: #000;
-      font-size: 12px;
-      line-height: 33px;
-      border-bottom: 1px solid #bbb;
+
+  .map-BottomNavigation-right-coordinate {
+    width: 230px;
+    position: absolute;
+    right: 50%;
+    display: flex;
+    top: 1px;
+    /*span {
+      width: 20%;
+      height: 100%;
+      line-height: 16px;
     }
-    .InstalledFormInput {
+    div {
+      width: 70%;
+      height: 100%;
+    }*/
+  }
+
+  .BMap_pop {
+    background: red;
+  }
+
+  .BMap_top {
+    box-sizing: content-box;
+    overflow: hidden;
+    z-index: 999;
+    position: absolute;
+    left: 1px;
+    top: 0px;
+    width: 310px;
+    height: 25px;
+    background: red;
+  }
+
+  .map-BottomNavigation-right-scale {
+    position: absolute;
+    right: 35%;
+    top: -1px;
+  }
+  .WellCoverMonitoring {
+    width: 613px;
+    height: 38px;
+    background: #e4e4e4;
+    position: absolute;
+    top: 83px;
+    left: 30%;
+    z-index: 999;
+    -webkit-box-shadow: 0 0 13px 3px;
+    box-shadow: 0 0 19px 1px;
+    border-radius: 0px 0px 10px 10px;
+    ul {
       width: 100%;
-      height: 31px;
-      text-align: left;
-      font-size: 12px;
-      line-height: 31px;
-      text-indent: 14px;
-      input {
-        width: 241px;
-        height: 19px;
-        border: 1px solid #a4a4a4;
-        border-radius: 2px;
-        margin-left: 2px;
-      }
-      .InstalledFormBut {
-        /* width: 53px; */
-        height: 20px;
-        border: 1px solid #abc6dd;
-        color: #042271;
+      height: 100%;
+      display: flex;
+      padding: 0;
+      margin: 0;
+      justify-content: center;
+      align-items: center;
+      li {
+        flex: 1;
         font-size: 12px;
+        list-style: none;
+        color: #2c4586;
         cursor: pointer;
-        margin-right: 19px;
-        border-radius: 2px;
-        margin-top: 6px;
-        /* display: inline-block; */
-        float: right;
+        span {
+          position: absolute;
+          right: 105px;
+          width: 95px;
+          height: 20px;
+          top: 8px;
+          /* background: salmon; */
+          border: 1px solid #eecdcd;
+          border-radius: 5px;
+        }
       }
-    }
-    #BMap_pop {
-      background: red;
+
     }
   }
-}
+  @media (min-width: 1280px) {
+    .WellCoverMonitoring {
+      width: 550px;
+      left: 18%;
+    }
+    .map-BottomNavigation-left-content{
+      text-indent: -35px;
+    }
+    .images{
+      width:40.6%  ;
+    }
+  }
+  @media (min-width: 1366px) {
+    .WellCoverMonitoring {
+      width: 575px;
+      left: 22%;
+    }
+    .map-BottomNavigation-left-content{
+      text-indent: -53px;
+    }
+  }
+  @media (min-width: 1400px) {
+    .WellCoverMonitoring {
+      width: 575px;
+      left: 24%;
+    }
+  }
+  @media (min-width: 1440px) {
+    .WellCoverMonitoring {
+      width: 575px;
+      left: 2%;
+    }
+  }
+  @media (min-width: 1600px) {
+    .WellCoverMonitoring {
+      width: 613px;
+      left: 28%;
+    }
+  }
+  @media (min-width: 1680px) {
+    .WellCoverMonitoring {
+      width: 613px;
+      left: 29%;
+    }
+  }
+  @media (min-width: 1920px) {
+    .WellCoverMonitoring {
+      width: 613px;
+      left: 30%;
+    }
+  }
+  .CloseWellCoverMonitoring {
+    cursor: pointer;
+    border-left: 1px solid #5e5e5e;
+  }
 
-.InstalledEquipment {
-}
+  .lis1 {
+    border-right: 1px solid #5e5e5e;
+    line-height: 26px;
+    img {
+      float: left;
+      margin-left: 5px;
+    }
+  }
 
-.AlarmClos {
-  width: 21px;
-  height: 21px;
-  background: green;
-  background-image: url('../assets/images/pic_close.png');
-  float: right;
-  margin-right: 5px;
-  border-radius: 4px;
-  cursor: pointer;
-}
+  .DetailedListOfManholeCovers {
+    width: 460px;
+    height: calc(100% - 113px);
+    position: absolute;
+    right: 1px;
+    top: 85px;
+    z-index: 2000;
+    overflow: hidden;
+  }
 
-.InstallClos {
-  width: 21px;
-  height: 21px;
-  background: seagreen;
-  background-image: url('../assets/images/pic_close.png');
-  float: right;
-  margin-right: 5px;
-  border-radius: 4px;
-  cursor: pointer;
-}
+  .DetailedControl {
+    height: 100%;
+    width: 35px;
+    float: right;
+    display: inline-block;
+    .DetailedContens {
+      height: 310px;
+      width: 100%;
+      background: #1d4173;
+      border-radius: 6px 0 0 6px;
+      box-sizing: border-box;
+      border-left: 1px solid #b4d3fc;
+      position: relative;
+      .DetailedControlBottom {
+        top: 74%;
+      }
+      .DetailedControlTop {
+        top: 5%;
+      }
+      .Dp {
+        position: absolute;
+        color: #fff;
+        font-size: 50px;
+        z-index: 10001;
+        left: 0%;
+        cursor: pointer;
+        background: none;
+        border: 0;
+        outline: 0 none !important;
+      }
+    }
+  }
 
-.xiacaozuo {
-  z-index: 2000;
-  position: absolute;
-  top: 30%;
-  height: 40px;
-  width: 30%;
-}
+  .DetailedLeft {
+    width: 92%;
+    height: auto;
+  }
 
-#allmap .BMap_scaleCtrl {
-  height: 0;
-  display: none;
-}
+  .ipm {
+    width: 402px;
+    height: 402px;
+    background: #31588d;
+    border-radius: 5px;
+    border: 1px solid #b4d3fc;
+    margin-bottom: 10px;
+    overflow: hidden;
+    margin-right: 5px;
+    p {
+      margin: 0;
+      font-size: 15px;
+      color: #fff;
+      font-weight: bold;
+      text-align: left;
+      text-indent: 20px;
+      line-height: 30px;
+    }
+    .InstalledForm {
+      width: 96%;
+      height: 91%;
+      background: #eee;
+      margin-left: 2%;
+      p {
+        width: 100%;
+        height: 33px;
+        background: #dfdfdf;
+        font-weight: normal;
+        text-align: left;
+        text-indent: 14px;
+        color: #000;
+        font-size: 12px;
+        line-height: 33px;
+        border-bottom: 1px solid #bbb;
+      }
+      .InstalledFormInput {
+        width: 100%;
+        height: 31px;
+        text-align: left;
+        font-size: 12px;
+        line-height: 31px;
+        text-indent: 14px;
+        input {
+          width: 241px;
+          height: 19px;
+          border: 1px solid #a4a4a4;
+          border-radius: 2px;
+          margin-left: 2px;
+        }
+        .InstalledFormBut {
+          /* width: 53px; */
+          height: 20px;
+          border: 1px solid #abc6dd;
+          color: #042271;
+          font-size: 12px;
+          cursor: pointer;
+          margin-right: 19px;
+          border-radius: 2px;
+          margin-top: 6px;
+          /* display: inline-block; */
+          float: right;
+        }
+      }
+      #BMap_pop {
+        background: red;
+      }
+    }
+  }
+
+  .InstalledEquipment {
+  }
+
+  .AlarmClos {
+    width: 21px;
+    height: 21px;
+    background: green;
+    background-image: url('../assets/images/pic_close.png');
+    float: right;
+    margin-right: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .InstallClos {
+    width: 21px;
+    height: 21px;
+    background: seagreen;
+    background-image: url('../assets/images/pic_close.png');
+    float: right;
+    margin-right: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .xiacaozuo {
+    z-index: 2000;
+    position: absolute;
+    top: 30%;
+    height: 40px;
+    width: 30%;
+  }
+
+  #allmap .BMap_scaleCtrl {
+    height: 0;
+    display: none;
+  }
 </style>
 <style>
   .BMap_top img {
+    display: none;
+  }
+
+  .maplibTcBtn_deskTop {
+    height: 5px;
     display: none;
   }
 

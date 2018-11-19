@@ -8,7 +8,7 @@
       <div class="InstalledFormInput">
         <div style="float: left">模糊匹配：</div>
         <!--模糊查询input-->
-        <el-input v-model="state1" style="width: 57%"  clearable></el-input>
+        <el-input  v-model="state1" style="width: 57%"  clearable></el-input>
         <!--<button class="InstalledFormBut" @click="searchData">查询</button>-->
       </div>
       <el-table
