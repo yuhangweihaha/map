@@ -122,6 +122,34 @@
         <el-button @click="SetUp = false">确 定</el-button>
       </span>
     </el-dialog>
+    <!--圆域\方域范围内井盖信息-->
+    <el-dialog title="范围内井盖数量" :visible.sync="Range">
+      <el-table
+        :data="this.ScopeInformation"
+        height="250"
+        border
+        style="width: 100%">
+        <el-table-column
+          prop="sensorNo"
+          label="设备编号"
+          width="220">
+        </el-table-column>
+        <el-table-column
+          prop="range"
+          label="设备名称"
+          width="220">
+        </el-table-column>
+        <el-table-column
+          label="设备坐标">
+          <template slot-scope="scope">
+            <span>{{ scope.row.latitude }}、{{ scope.row.longitude }}</span>
+          </template>
+        </el-table-column>
+      </el-table>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="Range = false">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -134,8 +162,6 @@
   import icon2 from '@/assets/images/pic_icon2.jpg';
   /*import icon3 from '@/assets/images/111.png';
   import icon4 from '@/assets/images/222.png';*/
-  import api from '../../axios/api.js';
-
 
   export default {
     name: '',
@@ -150,6 +176,7 @@
         sosuo: '',
         didian: '',
         Cmask: false, //遮罩层
+        Range:false,
         xia: false,
         Closed: 'Closed',
         disabled: false,
@@ -303,7 +330,12 @@
         nowData: '',
         jgtype: 0,
         notify: null,
-        LeftA: 0
+        LeftA: 0,
+        ScopeInformation:'',
+        CenterLongitude:'',   //中心点经度
+        CenterLatitude:'',   //中心点维度
+        ThePeak:'',          //最高点
+        radius:''             //半径
       };
     },
     methods: {
@@ -431,13 +463,13 @@
         }
       },
       mapBut() {
-        if (this.isTop) {
-          this.heightData = 0 + 'px';
-          this.TopData = 0 + 'px';
-          this.isTop = false;
-          this.$refs.jgDetail.style.top = 0.6 + '%';
-          // this.$refs.jgDetail.style.height = 'calc'+ '(' + 100 + '%' + '-' + 33 + 'px' + ')';
-          this.$refs.jgDetail.style.height = 96 + '%';
+          if (this.isTop) {
+            this.heightData = 0 + 'px';
+            this.TopData = 0 + 'px';
+            this.isTop = false;
+            this.$refs.jgDetail.style.top = 0.6 + '%';
+            // this.$refs.jgDetail.style.height = 'calc'+ '(' + 100 + '%' + '-' + 33 + 'px' + ')';
+            this.$refs.jgDetail.style.height = 96 + '%';
         }
         else {
           this.isTop = true;
@@ -541,7 +573,47 @@
             _this.showSlider();
           }, 100);
         }
-        else if (index === 1) {
+        else if (index === 0) {
+           let _this = this;
+           let overlays = [];
+           let overlaycomplete = function(e){
+             this.ThePeak = e.overlay.Ou.Vd;
+             this.CenterLongitude = e.overlay.point.lng;         //中心经度
+             this.CenterLatitude = e.overlay.point.lat;          //中心维度
+             this.radius = this.ThePeak - this.CenterLatitude;   //半径
+             _this.CircularDomain();
+             console.log(this.CenterLongitude,1111111);
+             console.log(this.CenterLatitude,222222222);
+             console.log(this.radius,3333333) ;
+             overlays.push(e.overlay);
+             console.log(overlays,44444444) ;
+          };
+          let styleOptions = {
+            strokeColor:"red",    //边线颜色。
+            fillColor:"red",      //填充颜色。当参数为空时，圆形将没有填充效果。
+            strokeWeight: 3,       //边线的宽度，以像素为单位。
+            strokeOpacity: 0.8,    //边线透明度，取值范围0 - 1。
+            fillOpacity: 0.6,      //填充的透明度，取值范围0 - 1。
+            strokeStyle: 'solid' //边线的样式，solid或dashed。
+          };
+          let drawingManager = new BMapLib.DrawingManager(this.map, {
+            isOpen: false, //是否开启绘制模式
+            enableDrawingTool: true, //是否显示工具栏
+            drawingToolOptions: {
+              anchor: BMAP_ANCHOR_TOP_LEFT, //位置
+              offset: new BMap.Size(150, 150), //偏离值
+            },
+            circleOptions: styleOptions, //圆的样式
+            polylineOptions: styleOptions, //线的样式
+            polygonOptions: styleOptions, //多边形的样式
+            rectangleOptions: styleOptions //矩形的样式
+          });
+          drawingManager.addEventListener('overlaycomplete', overlaycomplete);
+          /*console.log(overlays);
+          console.log(_this.TopDataI,'_this.TopDataI');
+          console.log(index,'index');*/
+
+
         }
         else if (index === 3) {
         }
@@ -661,9 +733,9 @@
       },
       // 获取moke数据(列表数据)
       setNewsApi() {
-        api.post('/news/index')
+        this.$http.get('/wei/index')
           .then(res => {
-            console.log(res, '接口数据');
+            console.log(res.articles);
             this.alreadyInstalled = res.articles;
             let c = [],
               d = [],
@@ -681,11 +753,66 @@
                 this.ConstructionOpensOvertime = e.length;
               }
             }
-
             // this.Timeoutlist = res.articles;
             // this.Offlinelist = res.articles;
             this.AlreadyInstalled = this.alreadyInstalled.length;
           });
+      },
+      // 详细列表接口
+      NewsApi() {
+        this.$http.get('/api/holecoverList')
+          .then(success =>{
+            if(success.status === 200 || success.status === "200"){
+              console.log(success,'success')
+            }
+
+           /* for(let i = 0 ; i < res.length ; i ++){
+              console.log(res[i]);
+              console.log(res[i].city);
+            }*/
+        })
+        /*debugger
+        let mp = new Thrift.Multiplexer();
+        console.log(mp.createClient,'mpmp');
+        let transport = new Thrift.Transport("http://192.168.2.118:9898");
+        console.log(transport,'transport');
+        let protocol = new Thrift.TJSONProtocol(transport);
+        console.log(protocol,'protocol')*/
+        // let client = mp.createClient('Audio', AudioClient, transport);
+       /* fetch('http://192.168.2.118:9898/', {
+          method: 'POST',
+          mode: 'cors',
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log(data);
+            this.list = data.content
+          })*/
+      },
+      CircularDomain(){
+
+        this.$http.get('/api/holecoverCircle',{
+          // circle:[l:40.42808,l1:117.71842]
+         /* 'longitude': 40.42808,  //中心点经度
+          'latitude': 11.88989,  //中心点维度
+          'radius': 10           //半径*/
+          'longitude': this.CenterLongitude,  //中心点经度
+          'latitude': this.CenterLatitude,  //中心点维度
+          'radius': this.radius         //半径
+        })
+          .then(
+            success =>{
+            if(success.status === 200 || success.status === "200"){
+              console.log(success.data,'successssssssss');
+              this.ScopeInformation = success.data;
+              this.Range = true;
+             }
+
+            /* for(let i = 0 ; i < res.length ; i ++){
+               console.log(res[i]);
+               console.log(res[i].city);
+             }*/
+          })
       },
       //打开设置
       SoundEetting() {
@@ -803,6 +930,7 @@
     mounted() {
       // 引入地图
       this.initMap();
+      this.NewsApi();
     },
     created() {
       // this.initWebSocket();  //开启wensocket
@@ -836,7 +964,11 @@
     color: #2c3e50;
 
   }
-
+  .Ranges{
+    width: 500px;
+    height: 400px;
+    background: sandybrown;
+  }
   #allmap {
     height: 100%;
     overflow: hidden;

@@ -93,18 +93,20 @@ const produceNewsData = function () {
 };
 const Warningcovers = function () {
   let Secondcover = [];
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < 1; i++) {
     let Warning = {
-      date: Random.natural(0, 1000000000),// 设备编号
-      name: Random.natural(0, 10000), // 井盖编号
-      address: Random.date() + ' ' + Random.time(), //安装日期
+      date: Random.natural(0, 500),// 设备编号
+      date1: Random.natural(0, 500),// 设备编号
+      date2: Random.natural(0, 500),// 设备编号
+      date3: Random.natural(0, 500),// 设备编号
+      name: Random.natural(0, 100), // 井盖编号
       Manufacturer: Random.ctitle(3, 8),  //生产厂家
-      Installation: Random.ctitle(3, 7),   //安装单位
+      address: Random.ctitle(3, 7),   //安装单位
       ManagementUnit: Random.ctitle(3, 9),  //管理单位
-      installDate: Random.date(), // 安装日期
-      ServiceLife: Random.natural(1, 100), // 使用寿命
-      coordinateX: Random.float(116, 117, 6, 5), //坐标x
-      coordinateY: Random.float(40, 41, 6, 5) //坐标Y
+      installDate: Random.ctitle(3, 7),   //安装单位
+      ServiceLife: Random.natural(1, 30), // 使用寿命
+      coordinateX: Random.float(1, 9, 2, 1), //坐标x
+      coordinateY: Random.float(1, 9, 2, 1) //坐标Y
     };
     Secondcover.push(Warning)
   }
@@ -115,5 +117,5 @@ const Warningcovers = function () {
 };
 
 // Mock.mock( url, post/get , 返回的数据)；
-Mock.mock('/news/index', 'post', produceNewsData);
-Mock.mock('/news/api', 'post', Warningcovers);
+Mock.mock('/wei/index', 'get', produceNewsData);
+Mock.mock('/test/user', 'post', Warningcovers);
