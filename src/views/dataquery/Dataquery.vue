@@ -1,5 +1,8 @@
 <template>
 
+  <div>
+    我是时事数据
+  </div>
 </template>
 <script>
   export default {
@@ -11,9 +14,6 @@
     },
 
     methods: {
-
-
-
 
     },
     mounted(){

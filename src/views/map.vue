@@ -1,17 +1,17 @@
 <template>
   <div id="map">
     <!--表头-->
-    <div class="map-herder" :style="{height: heightData}">
+    <!--<div class="map-herder" :style="{height: heightData}">
       <div class="map_herders">
         <div class="images"></div>
       </div>
-      <!--按钮-->
+      &lt;!&ndash;按钮&ndash;&gt;
       <div class="map-herder-but" @click="mapBut">▼</div>
-    </div>
+    </div>-->
     <!--遮罩层-->
     <div class="mask" v-show='Cmask'>
       <img src="../assets/images/5.gif" alt="">
-    </div>jk
+    </div>
     <!--井盖监控功能-->
     <div class="WellCoverMonitoring" :style="{top:TopData}" v-if="TopDataIf">
       <ul>
@@ -31,8 +31,10 @@
       </ul>
     </div>
     <!--左侧导航栏-->
-
     <div class="Lall" @mousewheel.native="MapLefts(e)">
+      <audio v-if="mapbottomaudio" style="position: absolute;top:-40px" :src="audios" loop="loop" autoplay="autoplay">
+        您的浏览器不支持 audio 标签。
+      </audio>
       <div class="map-LeftNavigation-but" @click="MapLeft">▶</div>
       <div class="map-LeftNavigation" :style="{width: widthData}">
         <div class="map-LeftNavigation-top tb" @click="LeftTop">▲</div>
@@ -44,16 +46,14 @@
       </div>
     </div>
 
-    <div class="map-BottomNavigation">
-      <!--左侧放大+提示-->
+    <!--<div class="map-BottomNavigation">
+      &lt;!&ndash;左侧放大+提示&ndash;&gt;
       <div class="map-BottomNavigation-left">
         <div @click="Fullscreen" class="map-BottomNavigation-left-img"></div>
         <div class="map-BottomNavigation-left-content"> | 操作提示：请按照相关提示正确操作</div>
 
-        <!--右侧坐标+比例尺-->
-        <audio v-if="mapbottomaudio" style="position: absolute;top:-40px" :src="audios" loop="loop" autoplay="autoplay">
-          您的浏览器不支持 audio 标签。
-        </audio>
+        &lt;!&ndash;右侧坐标+比例尺&ndash;&gt;
+
         <div class="map-BottomNavigation-right">
           <div class="map-BottomNavigation-right-coordinate"><span style="line-height: 15px">| 坐标：</span>
             <span style="display:inline-block;width: 140px">{{coordinate1}} , {{coordinate2}}</span>
@@ -63,7 +63,7 @@
           <div class="Traffic" @click="Traffics"> 点击查看路况</div>
         </div>
       </div>
-    </div>
+    </div>-->
     <!--井盖详细列表-->
     <div class="DetailedListOfManholeCovers" v-show="Detail" ref="jgDetail">
       <!--右侧按钮滚动条区域-->
@@ -1003,7 +1003,7 @@
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: #2c3e50;
-
+    z-index: 1;
   }
   .Ranges{
     width: 500px;
