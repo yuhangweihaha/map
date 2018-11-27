@@ -11,7 +11,7 @@
     <!--遮罩层-->
     <div class="mask" v-show='Cmask'>
       <img src="../assets/images/5.gif" alt="">
-    </div>
+    </div>jk
     <!--井盖监控功能-->
     <div class="WellCoverMonitoring" :style="{top:TopData}" v-if="TopDataIf">
       <ul>
@@ -332,10 +332,15 @@
         notify: null,
         LeftA: 0,
         ScopeInformation:'',
-        CenterLongitude:'',   //中心点经度
-        CenterLatitude:'',   //中心点维度
-        ThePeak:'',          //最高点
-        radius:''             //半径
+        CenterLongitude:[],   //中心点经度
+        CenterLatitude:[],   //中心点维度
+        ThePeak:[],          //最高点
+        radius:[],             //半径
+        longitudeLeft:[],  //左下经度
+        latitudeLeft:[],  //左下纬度
+        longitude1Right:[], //右上经度
+        latitude1Right:[]  //右上纬度
+
       };
     },
     methods: {
@@ -577,16 +582,27 @@
            let _this = this;
            let overlays = [];
            let overlaycomplete = function(e){
-             this.ThePeak = e.overlay.Ou.Vd;
-             this.CenterLongitude = e.overlay.point.lng;         //中心经度
-             this.CenterLatitude = e.overlay.point.lat;          //中心维度
-             this.radius = this.ThePeak - this.CenterLatitude;   //半径
-             _this.CircularDomain();
-             console.log(this.CenterLongitude,1111111);
-             console.log(this.CenterLatitude,222222222);
-             console.log(this.radius,3333333) ;
+              if(e.drawingMode == 'circle'){
+                _this.ThePeak = e.overlay.Ou.Vd;
+                _this.CenterLongitude = e.overlay.point.lng;         //中心经度
+                _this.CenterLatitude = e.overlay.point.lat;          //中心维度
+                _this.radius = _this.ThePeak - _this.CenterLatitude;   //半径
+                _this.CircularDomain(1);
+              }else{
+                _this.longitudeLeft = e.overlay.Ou.He; //左下经度
+                _this.latitudeLeft = e.overlay.Ou.Le;  //左下纬度
+                _this.longitude1Right = e.overlay.Ou.Le;  //右上经度
+                _this.latitude1Right = e.overlay.Ou.Le;  //右上纬度
+                _this.CircularDomain(2);
+              }
+             _this.Cmask = true;  //遮罩动画
+
+             // 画第二个的时候删除上一个
              overlays.push(e.overlay);
-             console.log(overlays,44444444) ;
+             for(let i = 0; i < overlays.length; i++){
+               _this.map.removeOverlay(overlays[i-1]);
+             }
+
           };
           let styleOptions = {
             strokeColor:"red",    //边线颜色。
@@ -599,16 +615,20 @@
           let drawingManager = new BMapLib.DrawingManager(this.map, {
             isOpen: false, //是否开启绘制模式
             enableDrawingTool: true, //是否显示工具栏
+            // drawingMode:BMAP_DRAWING_POLYGON,//绘制模式  多边形
             drawingToolOptions: {
               anchor: BMAP_ANCHOR_TOP_LEFT, //位置
               offset: new BMap.Size(150, 150), //偏离值
+              drawingModes:[
+                BMAP_DRAWING_CIRCLE,
+                BMAP_DRAWING_RECTANGLE
+              ]
             },
             circleOptions: styleOptions, //圆的样式
-            polylineOptions: styleOptions, //线的样式
-            polygonOptions: styleOptions, //多边形的样式
             rectangleOptions: styleOptions //矩形的样式
           });
           drawingManager.addEventListener('overlaycomplete', overlaycomplete);
+
           /*console.log(overlays);
           console.log(_this.TopDataI,'_this.TopDataI');
           console.log(index,'index');*/
@@ -789,30 +809,51 @@
             this.list = data.content
           })*/
       },
-      CircularDomain(){
+      CircularDomain(type){
+        console.log(type,'type');
+       let _this = this;
+       if(type ==1){
+         this.$http.get('/api/holecoverCircle',{
+           // circle:[l:40.42808,l1:117.71842]
+          /* 'longitude': 40.42808,  //中心点经度
+           'latitude': 11.88989,  //中心点维度
+           'radius': 10           //半径*/
+           'longitude': _this.CenterLongitude,  //中心点经度
+           'latitude': _this.CenterLatitude,  //中心点维度
+           'radius': _this.radius         //半径
+         })
+           .then(
+             success =>{
+               if(success.status === 200 || success.status === "200"){
+                 console.log(success.data,'successssssssss');
+                 this.Cmask = false;
+                 this.ScopeInformation = success.data;
+                 this.Range = true;
+               }
 
-        this.$http.get('/api/holecoverCircle',{
-          // circle:[l:40.42808,l1:117.71842]
-         /* 'longitude': 40.42808,  //中心点经度
-          'latitude': 11.88989,  //中心点维度
-          'radius': 10           //半径*/
-          'longitude': this.CenterLongitude,  //中心点经度
-          'latitude': this.CenterLatitude,  //中心点维度
-          'radius': this.radius         //半径
-        })
-          .then(
-            success =>{
-            if(success.status === 200 || success.status === "200"){
-              console.log(success.data,'successssssssss');
-              this.ScopeInformation = success.data;
-              this.Range = true;
-             }
+               /* for(let i = 0 ; i < res.length ; i ++){
+                  console.log(res[i]);
+                  console.log(res[i].city);
+                }*/
+             })
+       }else{
+         this.$http.get('/api/holecoverSquare',{
+             'longitudeLeft':_this.longitudeLeft,
+             'latitudeLeft':_this.latitudeLeft,
+             'longitude1Right':_this.longitude1Right,
+             'latitude1Right':_this.latitude1Right
+         })
+           .then(
+             success =>{
+               if(success.status === 200 || success.status === "200"){
+                 console.log(success.data,'successssssssss');
+                 this.Cmask = false;
+                 this.ScopeInformation = success.data;
+                 this.Range = true;
+               }
+             })
+       }
 
-            /* for(let i = 0 ; i < res.length ; i ++){
-               console.log(res[i]);
-               console.log(res[i].city);
-             }*/
-          })
       },
       //打开设置
       SoundEetting() {

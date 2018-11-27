@@ -42,7 +42,7 @@
             type: 'value'
           },
           series: [{
-            data: [_this.one, this.two, this.three, this.five, this.four, this.six, this.seven],
+            data: [144, 144, 456, 143, 568, 345, 111],
             type: 'line'
           }]
         };
