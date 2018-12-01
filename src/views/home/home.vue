@@ -1,69 +1,82 @@
 <template>
-  <div id="box">
-    <div class="map-herder">
-        <div class="images"></div>
-      <div class="lis">
-        <ul>
-           <router-link to="/map" tag="li">首页</router-link>
-          <el-dropdown>
-            <router-link to="/dataquery" tag="li">数据查询</router-link>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>实时数据</el-dropdown-item>
-              <el-dropdown-item>离线数据</el-dropdown-item>
-              <el-dropdown-item>历史数据</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
+	<div id="box">
+		<div class="map-herder">
+			<div class="images">
+				<div class="images-logo"><img src="@/assets/images/pic_zy.png" alt=""></div>
+				<div class="images-name">传感器大数据监控平台</div>
+			</div>
+			<div class="lis">
+				<ul>
+					<template v-for="item in tabData">
+						<li v-if="item.children.length === 0" @click="toLink(item)">{{item.name}}</li>
+						<el-dropdown v-else>
+							<li>{{item.name}}</li>
+							<el-dropdown-menu slot="dropdown">
+								<el-dropdown-item v-for="item_c in item.children">
+									<li @click="toLink(item_c)">{{item_c.name}}</li>
+								</el-dropdown-item>
+							</el-dropdown-menu>
+						</el-dropdown>
+					</template>
+				</ul>
+			</div>
+			<input type="button" name="" id="map-herder-button" value="退出登录">
+		</div>
+		<div style="width: 100%;height: 100%;z-index: 1">
+			<router-view></router-view>
+		</div>
 
-           <router-link to="/alarmmanagement" tag="li">告警管理</router-link>
-          <router-link to="/devicemanagement" tag="li">设备管理</router-link>
-          <router-link to="/statisticalanalysis" tag="li">统计分析</router-link>
-          <router-link to="/simulationdeduction" tag="li">模拟推演</router-link>
-          <router-link to="/trafficmanagement" tag="li">流量管理</router-link>
-          <router-link to="/systemsetup" tag="li">系统设置</router-link>
-          <router-link to="/stateoverview" tag="li">状态总览</router-link>
-        </ul>
-      </div>
-      <input type="button" name="" id="map-herder-button" value="退出登录">
-      </div>
-    <div style="width: 100%;height: 100%;z-index: 1">
-      <router-view></router-view>
-    </div>
-
-    <div class="map-BottomNavigation">
-      <!--左侧放大+提示-->
-      <!--<div class="map-BottomNavigation-left">
-        <div @click="Fullscreen" class="map-BottomNavigation-left-img"></div>
+		<div v-if="mapbottom" class="map-BottomNavigation">
+			<!--<span style="color: #ffffff;">{{tabName}}</span>-->
+			<!--左侧放大+提示-->
+			<div class="map-BottomNavigation-left">
+        <div class="map-BottomNavigation-left-img"></div>
         <div class="map-BottomNavigation-left-content"> | 操作提示：请按照相关提示正确操作</div>
 
-        &lt;!&ndash;右侧坐标+比例尺&ndash;&gt;
+        <!--右侧坐标+比例尺-->
 
-        <div class="map-BottomNavigation-right">
+      <!--  <div class="map-BottomNavigation-right">
           <div class="map-BottomNavigation-right-coordinate"><span style="line-height: 15px">| 坐标：</span>
             <span style="display:inline-block;width: 140px">{{coordinate1}} , {{coordinate2}}</span>
           </div>
           <div class="map-BottomNavigation-right-scale"><span style="line-height: 15px;">| 比例尺：</span> <span
             style="display:inline-block;width: 60px;">{{scales}}</span></div>
           <div class="Traffic" @click="Traffics"> 点击查看路况</div>
-        </div>
-      </div>-->
+        </div>-->
+      </div>
 		</div>
 	</div>
 
 </template>
 <script>
+	import { mapGetters } from 'vuex';
 	export default {
 		name: '',
 		data() {
 			return {
-
+				Licalss: '',
+        mapbottom:true
 			}
 		},
-
 		methods: {
-
+			toLink(data){
+			  /*if(data.name !== '首页'){
+			    this.mapbottom = true;
+        }else{
+          this.mapbottom = false;
+        }*/
+				this.$store.commit('updatetabName', data.name);
+				this.$router.push({ path:'/' + data.url});
+			}
 		},
-		mounted() {
+    created(){
 
+    },
+		mounted() {
+      // this.mapbottom = true;
+		},
+		computed: {
+			...mapGetters(['tabData', 'tabName'])
 		}
 	}
 </script>
@@ -105,19 +118,36 @@
 	}
 	
 	.images {
-		width: 31.6%;
-		height: 63%;
+		width: 365px;
+		height: 51px;
 		position: absolute;
 		top: 15px;
-		left: 65px;
-		/*background-image: url(@//static/img/pic_logo3.cbb9f00.png);*/
+		left: 89px;
+		display: flex;
+		/* background-image: url(@//static/img/pic_logo3.cbb9f00.png); */
 		background-repeat: repeat-y;
+	}
+	
+	.images-logo {
+		width: 51px;
+		height: 51px
+	}
+	
+	.images-name {
+		width: 314px;
+		height: 51px;
+		color: #fff;
+		font-size: 30px;
+		text-indent: 5px;
+		font-family: cursive;
+		line-height: 48px;
+		font-weight: 800;
 	}
 	
 	.map-herder-but:hover {
 		background: #fdd974;
 	}
-	
+
 	.map-BottomNavigation {
 		width: 100%;
 		height: 42px;
@@ -126,12 +156,11 @@
 		bottom: 0;
 		z-index: 2000;
 	}
-	
 	.map-BottomNavigation-left {
 		width: 20%;
 		height: 61%;
-		margin-left: 20px;
-		margin-top: 6px;
+    margin-left: 62px;
+    margin-top: 13px;
 	}
 	
 	.map-BottomNavigation-left-img {
@@ -144,11 +173,21 @@
 	
 	.map-BottomNavigation-left-content {
 		color: #fff;
-		font-size: 12px;
-		text-indent: -90px;
+		font-size: 13px;
+		text-indent: -77px;
 		line-height: 16px;
 	}
-	
+  @media (min-width: 1366px) {
+
+    .map-BottomNavigation-left-content{
+      text-indent: -83px;
+    }
+  }
+  @media (min-width: 1920px) {
+    .map-BottomNavigation-left-content{
+      text-indent: -145px;
+    }
+  }
 	.map-BottomNavigation-right {
 		width: 35%;
 		height: 100%;
@@ -177,10 +216,10 @@
 	}
 	
 	.lis {
-		width: 805px;
+		width: 860px;
 		height: 75px;
 		position: absolute;
-		right: 21%;
+		right: 18%;
 		ul {
 			width: 100%;
 			height: 100%;
@@ -190,11 +229,12 @@
 				width: 88px;
 				height: 100%;
 				list-style: none;
-				float: left;
+				/*float: left;*/
 				line-height: 75px;
 				font-size: 15px;
 				color: #fff;
 				cursor: pointer;
+				display: inline-block;
 			}
 			li:hover {
 				color: #000;
@@ -202,7 +242,19 @@
 			}
 		}
 	}
-	
+  @media (min-width: 1600px) {
+    .lis {
+      right: 18%;
+  }
+  }
+  @media (min-width: 1680px) {
+    right: 20%;
+  }
+  @media (min-width: 1920px) {
+    .lis {
+      right: 21%;
+    }
+  }
 	#map-herder-button {
 		position: absolute;
 		right: 7%;
@@ -215,5 +267,6 @@
 		font-size: 16px;
 		cursor: pointer;
 		top: 20px;
+		font-family: cursive;
 	}
 </style>

@@ -1,14 +1,14 @@
 <template>
   <div>
-    我是状态总览
+    我是地图设置
   </div>
 
 </template>
 
 <script>
-  export default {
-    name: "mapsettings"
-  }
+    export default {
+        name: "mapsettings"
+    }
 </script>
 
 <style scoped>

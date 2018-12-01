@@ -1,83 +1,98 @@
 <template>
   <div class="main-content">
     <header>
-      <label class="title"><img src="../../icon/pic_give.png"/><span>告警总览</span></label>
+      <label class="title"><img src="../../icon/pic_give.png"/><span>历史告警</span></label>
       <div class="param-content">
-        <div style="display: inline-block;" v-show="!timer">
-          <label class="param-title">刷新时间:</label>
-          <el-radio v-model="time" label="1">1分钟</el-radio>
-          <el-radio v-model="time" label="5">5分钟</el-radio>
-          <el-radio v-model="time" label="3">手动</el-radio>
+        <div class="number">
+          <el-select v-model="value" placeholder="请选择" value="5225">
+          <el-option
+            v-for="item in yuyu"
+            :label="item.gatewayNo"
+            :value="item.gatewayNo">
+          </el-option>
+        </el-select></div>
+        <div class="block">
+          <el-date-picker
+            v-model="times"
+            type="daterange"
+            align="right"
+            unlink-panels
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            :picker-options="pickerOptions2">
+          </el-date-picker>
         </div>
-        <label v-show="time !== '3' && timer">当前每{{time}}分钟查询,更换条件查询请暂停</label>
-        <el-button v-show="time !== '3' && !timer" @click="getDataOfTime">执行</el-button>
-        <el-button v-show="time !== '3' && timer" @click="clearTimer">停止</el-button>
-        <el-button v-show="time === '3'" @click="auto">刷新</el-button>
+        <div class="blocks">
+          <el-button style="height: 38px;width: 66px" @click="handleCheck()">查看</el-button>
+
+        </div>
+
       </div>
     </header>
     <div class="content">
-      <el-scrollbar style="height: 100%;">
       <el-table :data="yuyu" border fit highlight-current-row  height="500px" style="width: 100%;">
         <el-table-column align="center" label="序号" type="index" width="50">
         </el-table-column>
         <el-table-column align="center" label="传感器编号">
-          <template slot-scope="scope">5
-            <span>{{scope.row.date}}</span>
+          <template slot-scope="scope">
+            <span>{{scope.row.sensorNo}}</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="集控器编号">
           <template slot-scope="scope">
-            <span>{{scope.row.name}}</span>
+            <span>{{scope.row.gatewayNo}}</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="告警状态">
           <template slot-scope="scope">
-            <span>{{scope.row.alarmstate}}</span>
+            <span>{{scope.row.alarmStatus}}</span>
           </template>
         </el-table-column>
-        <el-table-column align="center" label="集控器信号强度">
+        <el-table-column align="center" label="集控器信号强度" width="150%">
           <template slot-scope="scope">
-            <span>{{scope.row.Centralizer}}dBm</span>
+            <span>{{scope.row.controllerSignalStrength}}dBm</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="集控器电压">
           <template slot-scope="scope">
-            <span>{{scope.row.collectorvoltage}}V</span>
+            <span>{{scope.row.voltage}}V</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="工作模式">
           <template slot-scope="scope">
-            <span>{{scope.row.workingmode}}</span>
+            <span>{{scope.row.workingModel}}</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="连接状态">
           <template slot-scope="scope">
-            <span>{{scope.row.quantity}}</span>
+            <span>{{scope.row.connStatus}}</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="触发器电量">
           <template slot-scope="scope">
-            <span>{{scope.row.triggerpower}}</span>
+            <span>{{scope.row.sensorPower}}</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="经度">
           <template slot-scope="scope">
-            <span>{{scope.row.long}}</span>
+            <span>{{scope.row.longitude}}</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="维度">
           <template slot-scope="scope">
-            <span>{{scope.row.lat}}</span>
+            <span>{{scope.row.latitude}}</span>
           </template>
         </el-table-column>
-        <el-table-column align="center" label="告警时间">
+        <el-table-column align="center" label="告警时间" width="150%">
+
           <template slot-scope="scope">
-            <span>{{scope.row.time}}</span>
+            <span>{{forMatterDate(scope.row.insertTime)}}</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="城市">
           <template slot-scope="scope">
-            <span>{{scope.row.City}}</span>
+            <span>{{scope.row.city}}</span>
           </template>
         </el-table-column>
       </el-table>
@@ -85,22 +100,54 @@
         <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="page" :page-sizes="[5,10,20,50]" :page-size="limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
         </el-pagination>
       </div>
-      </el-scrollbar>
     </div>
   </div>
 </template>
 <script>
+  import { formatDate } from '@/common/js/date.js'
   export default {
     name: '',
     data() {
       return {
         time: '3',
-        dataType: '0',
+        yuyu:[],
+        value:'1',
+        pickerOptions2: {
+          shortcuts: [{
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近一个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近三个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+              picker.$emit('pick', [start, end]);
+            }
+          }]
+        },
+        forMatterDate: function(datetime) {
+          return formatDate(new Date(datetime), 'yyyy-MM-dd hh:mm:ss');
+        },
+        times: '',
+        starttime:'',
+        endtime:'',
         limit: 10,
         page: 1,
         total: null,
-        timer: null,
-        yuyu:[],
       }
     },
     methods: {
@@ -108,31 +155,29 @@
         return index * 2;
       },
       auto(){
-        this.$http.get('holecoverServer/alarm',{
-             limit:this.limit,
-             page:this.page
+        this.$http.get('holecoverServer/alarmHistory',{
+          startTime: this.starttime,
+          endTime: this.endtime,
+          sensorId: this.value,
+          limit:this.limit,
+          page:this.page
         })
           .then(res => {
+            // this.yuyu = res.Secondcover;
             if(res.status === 200 || res.status === '200'){
-              let assig = res.data.rows;
-              this.yuyu = assig;
-              console.log(res.data,'resres');
+              this.yuyu = res.data.rows;
+              console.log(res,'rwwwwwesres');
               this.total = res.data.total;
+              this.value = res.data.total.sensorNo;
             }else{
               alert('接口错误')
             }
-            // this.yuyu = res.Secondcover;
-
           });
       },
-      getDataOfTime() {
-        this.timer = setInterval(this.auto, this.time * 60000);
-      },
-      clearTimer() {
-        if(this.timer) {
-          clearInterval(this.timer); //停止定时器
-          this.timer = null;
-        }
+      handleCheck(){
+          this.starttime = this.times[0].getTime();
+          this.endtime = this.times[1].getTime();
+          this.auto();
       },
       handleSizeChange(val) {
         this.limit = val;
@@ -166,17 +211,18 @@
     position: relative;
     padding-left: 36px;
   }
-  header .block{
-    float: left;
-    margin-left: 20px;
-  }
+ header .block{
+   float: left;
+   margin-left: 20px;
+ }
   header .blocks{
-    float: right;
-    margin-left: 20px;
-  }
+     float: right;
+     margin-left: 20px;
+   }
   header .number{
-    float: left;
+   float: left;
   }
+
   header .title img {
     height: 26px;
     width: 32px;
@@ -233,4 +279,3 @@
     height: 40px;
   }
 </style>
-

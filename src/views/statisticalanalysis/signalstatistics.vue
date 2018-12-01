@@ -4,7 +4,7 @@
       <img src="@/assets/images/5.gif" alt="">
     </div>
     <header>
-      <label class="title"><img src="../../icon/pic_statistics.png"/><span>电量统计</span></label>
+      <label class="title"><img src="../../icon/pic_xin.png"/><span>信号统计</span></label>
       <div class="inpbut">
         <el-select
           v-model="sheng"
@@ -123,7 +123,7 @@
         let _this = this;
         this.map = new BMap.Map(this.$refs.allmap); // 创建Map实例
         this.map.centerAndZoom(new BMap.Point(this.one, this.two), 14);// 初始化地图,设置中心点坐标和地图级别
-        this.map.enableScrollWheelZoom(true); //开启鼠标滚轮缩放
+        this.map.enableScrollWheelZoom(false); //开启鼠标滚轮缩放
         let overlays = [];
         let overlaycomplete = function (e) {
           _this.drawingMode = e.drawingMode;
@@ -278,18 +278,17 @@
             this.shi1 = this.province[index2].children;
             this.shi = this.province[index2].children[0].value;
             this.qu1 = this.province[index2].children[0].children;
-            this.qu = this.province[index2].children[0].children[0].value;
+            // this.qu = this.province[index2].children[0].children[0].value;
           }
         }
       },
       // 选市
       choseCity(e) {
-        debugger
         for (let index3 in this.city) {
           if (e === this.city[index3].id) {
             this.shi = this.city[index3].value;
             this.qu1 = this.city[index3].children;
-            this.qu = this.city[index3].children[0].value
+            // this.qu = this.city[index3].children[0].value
             // console.log(this.E)
           }
         }
@@ -300,15 +299,30 @@
       },
       btn() {
         // this.Thesum = this.sheng + this.shi + this.qu + this.input;
+        if(this.sheng == '' && this.shi== ''){
+          this.$message({
+            showClose: true,
+            message: '您需要定位到市一级'
+          });
+        }else{
+          this.map.enableScrollWheelZoom(false);
+          /*this.map.centerAndZoom(this.Thesum, 11);
+          this.$message({
+            showClose: true,
+            message: '您不可以改变地图级别'
+          });
+          this.Thesum = this.sheng + this.shi + this.qu + this.input;
+          console.log(this.sheng, '省');
+          console.log(this.qu, '区');
+          console.log(this.shi, '市');
+          console.log(this.E, '市');*/
+          // if(this.input !== ''){
 
-        this.Thesum = this.sheng + this.shi + this.qu + this.input;
-        console.log(this.sheng, '省');
-        console.log(this.qu, '区');
-        console.log(this.shi, '市');
-        console.log(this.E, '市');
-        // if(this.input !== ''){
-        this.map.centerAndZoom(this.Thesum, 16);
-        // }
+
+
+          // }
+        }
+
       },
       handleSizeChange(val) {
         this.limit = val;
@@ -386,6 +400,7 @@
     .el-pagination {
       margin-top: 30px;
       margin-right: -14%;
+      margin-left: 0;
     }
   }
   @media (min-width: 1920px) {

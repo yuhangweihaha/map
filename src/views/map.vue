@@ -14,6 +14,9 @@
     </div>
     <!--井盖监控功能-->
     <div class="WellCoverMonitoring" :style="{top:TopData}" v-if="TopDataIf">
+      <audio v-if="mapbottomaudio" style="position: absolute;top:-40px" :src="audios" loop="loop" autoplay="autoplay">
+        您的浏览器不支持 audio 标签。
+      </audio>
       <ul>
         <li class="lis1" :style="{color:WellColor,flex:'1.1'}" :class='Closed'><img
           src="../assets/images/pic_connected.png">
@@ -32,9 +35,6 @@
     </div>
     <!--左侧导航栏-->
     <div class="Lall" @mousewheel.native="MapLefts(e)">
-      <audio v-if="mapbottomaudio" style="position: absolute;top:-40px" :src="audios" loop="loop" autoplay="autoplay">
-        您的浏览器不支持 audio 标签。
-      </audio>
       <div class="map-LeftNavigation-but" @click="MapLeft">▶</div>
       <div class="map-LeftNavigation" :style="{width: widthData}">
         <div class="map-LeftNavigation-top tb" @click="LeftTop">▲</div>
@@ -46,13 +46,13 @@
       </div>
     </div>
 
-    <!--<div class="map-BottomNavigation">
-      &lt;!&ndash;左侧放大+提示&ndash;&gt;
+    <div class="map-BottomNavigation">
+      <!--左侧放大+提示-->
       <div class="map-BottomNavigation-left">
         <div @click="Fullscreen" class="map-BottomNavigation-left-img"></div>
         <div class="map-BottomNavigation-left-content"> | 操作提示：请按照相关提示正确操作</div>
 
-        &lt;!&ndash;右侧坐标+比例尺&ndash;&gt;
+        <!--右侧坐标+比例尺-->
 
         <div class="map-BottomNavigation-right">
           <div class="map-BottomNavigation-right-coordinate"><span style="line-height: 15px">| 坐标：</span>
@@ -63,7 +63,7 @@
           <div class="Traffic" @click="Traffics"> 点击查看路况</div>
         </div>
       </div>
-    </div>-->
+    </div>
     <!--井盖详细列表-->
     <div class="DetailedListOfManholeCovers" v-show="Detail" ref="jgDetail">
       <!--右侧按钮滚动条区域-->
@@ -589,11 +589,13 @@
                 _this.radius = _this.ThePeak - _this.CenterLatitude;   //半径
                 _this.CircularDomain(1);
               }else{
+                console.log(e.overlay);
                 _this.longitudeLeft = e.overlay.Ou.He; //左下经度
                 _this.latitudeLeft = e.overlay.Ou.Le;  //左下纬度
                 _this.longitude1Right = e.overlay.Ou.Le;  //右上经度
                 _this.latitude1Right = e.overlay.Ou.Le;  //右上纬度
                 _this.CircularDomain(2);
+                console.log(e.overlay,'e.overlay');
               }
              _this.Cmask = true;  //遮罩动画
 
@@ -615,7 +617,6 @@
           let drawingManager = new BMapLib.DrawingManager(this.map, {
             isOpen: false, //是否开启绘制模式
             enableDrawingTool: true, //是否显示工具栏
-            // drawingMode:BMAP_DRAWING_POLYGON,//绘制模式  多边形
             drawingToolOptions: {
               anchor: BMAP_ANCHOR_TOP_LEFT, //位置
               offset: new BMap.Size(150, 150), //偏离值
@@ -628,12 +629,6 @@
             rectangleOptions: styleOptions //矩形的样式
           });
           drawingManager.addEventListener('overlaycomplete', overlaycomplete);
-
-          /*console.log(overlays);
-          console.log(_this.TopDataI,'_this.TopDataI');
-          console.log(index,'index');*/
-
-
         }
         else if (index === 3) {
         }
@@ -780,10 +775,10 @@
       },
       // 详细列表接口
       NewsApi() {
-        this.$http.get('/api/holecoverList')
+        this.$http.get('/holecoverServer/list')
           .then(success =>{
             if(success.status === 200 || success.status === "200"){
-              console.log(success,'success')
+              console.log(success,'yusyhduysudyusydu')
             }
 
            /* for(let i = 0 ; i < res.length ; i ++){
@@ -813,7 +808,7 @@
         console.log(type,'type');
        let _this = this;
        if(type ==1){
-         this.$http.get('/api/holecoverCircle',{
+         this.$http.get('/holecoverServer/circle',{
            // circle:[l:40.42808,l1:117.71842]
           /* 'longitude': 40.42808,  //中心点经度
            'latitude': 11.88989,  //中心点维度
@@ -827,7 +822,7 @@
                if(success.status === 200 || success.status === "200"){
                  console.log(success.data,'successssssssss');
                  this.Cmask = false;
-                 this.ScopeInformation = success.data;
+                 this.ScopeInformation = success.data.rows;
                  this.Range = true;
                }
 
@@ -837,7 +832,7 @@
                 }*/
              })
        }else{
-         this.$http.get('/api/holecoverSquare',{
+         this.$http.get('/holecoverServer/square',{
              'longitudeLeft':_this.longitudeLeft,
              'latitudeLeft':_this.latitudeLeft,
              'longitude1Right':_this.longitude1Right,
@@ -848,7 +843,7 @@
                if(success.status === 200 || success.status === "200"){
                  console.log(success.data,'successssssssss');
                  this.Cmask = false;
-                 this.ScopeInformation = success.data;
+                 this.ScopeInformation = success.data.rows;
                  this.Range = true;
                }
              })
@@ -1185,24 +1180,24 @@
     top: -2px;
     right: 20%;
     color: #fff;
-    font-size: 12px;
+    font-size: 13px;
     cursor: pointer;
   }
 
   .map-BottomNavigation {
     width: 100%;
-    height: 27px;
+    height: 42px;
     background: #2b4d77;
     position: fixed;
     bottom: 0;
-    z-index: 2000;
+    z-index: 20000;
   }
 
   .map-BottomNavigation-left {
     width: 20%;
     height: 61%;
-    margin-left: 20px;
-    margin-top: 6px;
+    margin-left: 62px;
+    margin-top: 13px;
   }
 
   .map-BottomNavigation-left-img {
@@ -1215,7 +1210,7 @@
 
   .map-BottomNavigation-left-content {
     color: #fff;
-    font-size: 12px;
+    font-size: 13px;
     text-indent: -90px;
     line-height: 16px;
   }
@@ -1225,15 +1220,15 @@
     height: 100%;
     position: absolute;
     right: -58px;
-    top: 7px;
-    font-size: 12px;
+    top: 14px;
+    font-size: 13px;
     color: #fff;
   }
 
   .map-BottomNavigation-right-coordinate {
     width: 230px;
     position: absolute;
-    right: 50%;
+    right: 56%;
     display: flex;
     top: 1px;
     /*span {
@@ -1325,7 +1320,7 @@
       left: 22%;
     }
     .map-BottomNavigation-left-content{
-      text-indent: -53px;
+      text-indent: -83px;
     }
   }
   @media (min-width: 1400px) {
@@ -1356,6 +1351,9 @@
     .WellCoverMonitoring {
       width: 613px;
       left: 30%;
+    }
+    .map-BottomNavigation-left-content{
+      text-indent: -145px;
     }
   }
   .CloseWellCoverMonitoring {

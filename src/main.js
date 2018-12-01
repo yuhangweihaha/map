@@ -3,11 +3,14 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import store from './store'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import './assets/icon/iconfont.css'
 import axios from '../axios/api.js'
 import echarts from 'echarts'
+import VueAreaLinkage from 'vue-area-linkage';
+Vue.use(VueAreaLinkage);
 Vue.prototype.$echarts = echarts;
 Vue.prototype.$http = axios;
 Vue.use(ElementUI);
@@ -17,6 +20,7 @@ require('./mock.js');
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
+  store,
   router,
   components: { App },
   template: '<App/>',

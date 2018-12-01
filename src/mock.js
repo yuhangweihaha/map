@@ -115,7 +115,32 @@ const Warningcovers = function () {
     Secondcover: Secondcover
   }
 };
+//告警总览mock
+const alarmoverview = function () {
+  let Secondcover = [];
+  for (let i = 0; i < 16; i++) {
+    let Warning = {
+      date: Random.natural(0, 5000),  //传感器编号
+      name: Random.natural(0, 50000), //集控器编号
+      City:Random.city(),        //地点
+      time:Random.date() + ' ' + Random.time(),  //时间
+      lat:Random.float(39, 41, 6, 5),  //纬度
+      long:Random.float(115, 117, 6, 5), //经度
+      quantity:Random.boolean(), //连接状态
+      triggerpower:Random.natural(0, 100), //触发器电量
+      workingmode:Random.word(), //工作模式
+      collectorvoltage:Random.natural(0, 100), //集控器电压
+      Centralizer:Random.natural(-100, 100), //集控器信号强度
+      alarmstate:Random.natural(0, 1),  //告警状态
+    };
+    Secondcover.push(Warning)
+  }
 
+  return {
+    Secondcover: Secondcover
+  }
+};
 // Mock.mock( url, post/get , 返回的数据)；
 Mock.mock('/wei/index', 'get', produceNewsData);
 Mock.mock('/test/user', 'post', Warningcovers);
+Mock.mock('/baidu/user', 'get', alarmoverview);

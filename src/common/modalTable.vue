@@ -506,7 +506,7 @@
 
 </style>
 <style>
-  .el-pagination {
+  .inps .el-pagination {
     width: 50%;
     height: 20px;
     margin-left: 48%;
@@ -519,19 +519,19 @@
     border-top: 1px solid #a1adb8;
   }
 
-  .el-pagination .btn-next {
+  .inps .el-pagination .btn-next {
     background: none;
   }
 
-  .el-pagination .btn-prev {
+  .inps .el-pagination .btn-prev {
     background: none;
   }
 
-  .el-pagination button:disabled {
+  .inps .el-pagination button:disabled {
     background: none;
   }
 
-  .el-pagination__editor.el-input .el-input__inner {
+  .inps .el-pagination__editor.el-input .el-input__inner {
     height: 23px;
   }
 
@@ -557,7 +557,7 @@
   .el-slider.is-vertical .el-slider__button-wrapper {
     z-index: 9999;
   }
-  .el-input__suffix{
+  InstalledFormInput .el-input__suffix{
     margin-top: 8px;
     margin-right: -40px;
   }

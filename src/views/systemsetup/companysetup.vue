@@ -1,14 +1,14 @@
 <template>
   <div>
-    我是状态总览
+    我是公司设置
   </div>
 
 </template>
 
 <script>
-  export default {
-    name: "mapsettings"
-  }
+    export default {
+        name: "companysetup"
+    }
 </script>
 
 <style scoped>
