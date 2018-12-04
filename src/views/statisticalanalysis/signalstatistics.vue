@@ -1,5 +1,5 @@
 <template>
-  <div style=" height: 100%; overflow: hidden;">
+  <div id="signal" style=" height: 100%; overflow: hidden;">
     <div class="mask" v-show='Cmask'>
       <img src="@/assets/images/5.gif" alt="">
     </div>
@@ -48,43 +48,17 @@
     <div id="allmap" ref="allmap"></div>
     <!--圆域\方域范围内井盖信息-->
     <el-dialog title="范围内井盖电量统计" :visible.sync="Range">
-      <el-table :data="ScopeInformation" border fit highlight-current-row height="350"
-                style="width: 100%">
-        <el-table-column
-          prop="sensorNo"
-          label="传感器编号">
-        </el-table-column>
-        <el-table-column
-          prop="gatewayNo"
-          label="集控器编号">
-        </el-table-column>
-        <el-table-column
-          label="设备坐标">
-          <template slot-scope="scope">
-            <span>{{ scope.row.latitude }}、{{ scope.row.longitude }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="voltage"
-          label="电量"
-          width="220">
-          <template slot-scope="scope">
-            <span>{{ scope.row.sensorPower }}</span>
-          </template>
-        </el-table-column>
-      </el-table>
-      <div class="pagination-container">
-        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="page"
-                       :page-sizes="[5,10,20,50]" :page-size="limit" layout="total, sizes, prev, pager, next, jumper"
-                       :total="total">
-        </el-pagination>
-      </div>
+    <div class="esignal">
+      <div ref="gra" class="onsignal"><p>集控器信号强度</p></div>
+      <div ref="lineImg" class="onsignal"><p>传感器信号强度</p></div>
+    </div>
     </el-dialog>
   </div>
 
 </template>
 <script>
-  import mapj from '../../../static/json/map.json'
+  import mapj from '../../../static/json/map.json';
+  import echarts from 'echarts';
 
   export default {
     name: '',
@@ -115,7 +89,13 @@
         page: 1,
         total: null,
         timer: null,
-        drawingMode: ''
+        drawingMode: '',
+        websock: null,
+        drawLinex:[],
+        drawLiney:[],
+        autox:[],
+        autoy:[],
+        chartsData: null
       }
     },
     methods: {
@@ -198,6 +178,7 @@
                   this.ScopeInformation = success.data.rows;
                   this.Range = true;
                   this.total = success.data.total;
+                  _this.initweb(1);
                 } else if (success.status.code === 500 || success.status.code === "500") {
                   this.Cmask = false;
                   alert('服务器出错');
@@ -217,8 +198,6 @@
             latitudeLeft: -1,
             longitude1Right: 99999931134,
             latitude1Right: 56456456674,
-            limit:this.limit,
-            page:this.page
           })
             .then(
               success => {
@@ -228,6 +207,11 @@
                   this.ScopeInformation = success.data.rows;
                   this.Range = true;
                   this.total = success.data.total;
+                  setTimeout(function () {
+                    _this.drawLine();
+                    _this.auto();
+                  }, 100);
+                  _this.initweb(2);
                 } else {
                   alert('接口错误');
                   this.Cmask = false;
@@ -298,29 +282,17 @@
         // console.log(this.E)
       },
       btn() {
-        // this.Thesum = this.sheng + this.shi + this.qu + this.input;
-        if(this.sheng == '' && this.shi== ''){
+
+        this.Thesum = this.sheng + this.shi + this.qu + this.input;
+        if (this.sheng == '' && this.shi == '') {
           this.$message({
             showClose: true,
             message: '您需要定位到市一级'
           });
-        }else{
-          this.map.enableScrollWheelZoom(false);
-          /*this.map.centerAndZoom(this.Thesum, 11);
-          this.$message({
-            showClose: true,
-            message: '您不可以改变地图级别'
-          });
-          this.Thesum = this.sheng + this.shi + this.qu + this.input;
-          console.log(this.sheng, '省');
-          console.log(this.qu, '区');
-          console.log(this.shi, '市');
-          console.log(this.E, '市');*/
-          // if(this.input !== ''){
-
-
-
-          // }
+        } else {
+          console.log(this.sheng);
+          console.log(this.shi);
+          this.map.centerAndZoom(this.Thesum, 16);
         }
 
       },
@@ -341,12 +313,141 @@
           this.CircularDomain(2);
         }
       },
-    },
+      drawLine() {
+        let _this = this;
+        // 基于准备好的dom，初始化echarts实例
+        console.log(this.one, '23434');
+        let myChart = echarts.init(this.$refs.lineImg);
+        // 指定图表的配置项和数据
+        let option = {
+          xAxis: {
+            type: 'category',
+            data: this.chartsData['1']['gatewayNo']
+          },
+          yAxis: {
+            type: 'value'
+          },
+          series: [{
+            data: this.chartsData['3']['controllerSignalStrength'],
+            type: 'line'
+          }]
+        };
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+      },
+      graps() {
+        let arr = echarts.init(this.$refs.gra);
+        let opt = {
+          xAxis: {
+            type: 'category',
+            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Sun', 'Sun', 'Sun', 'Sun', 'Sun']
+          },
+          yAxis: {
+            type: 'value'
+          },
+          series: [{
+            data: [120, 200, 150, 80, 70, 110, 130, 150, 80, 70, 110, 130],
+            type: 'bar'
+          }]
+        };
+        arr.setOption(opt);
+      },
+      auto() {
+        let brr = echarts.init(this.$refs.gra);
+        let option = {
+          color: ['#3398DB'],
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+              type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+            }
+          },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+          },
+          xAxis: [
+            {
+              type: 'category',
+              data: this.chartsData['0']['sensorNo'],
+              axisTick: {
+                alignWithLabel: true
+              }
+            }
+          ],
+          yAxis: [
+            {
+              type: 'value'
+            }
+          ],
+          series: [
+            {
+              name: '直接访问',
+              type: 'bar',
+              barWidth: '60%',
+              data: this.chartsData['2']['sensorSignalStrength']
+            }
+          ]
+        };
+        brr.setOption(option);
+      },
+      initweb(type) {
+        let _this = this;
+        if(type===1){
+          let shape = 0;
+          this.websock.send( shape + ',' + _this.CenterLatitude + ',' + _this.radius + ',' + _this.CenterLongitude);
+          this.websock.onopen = this.websocketopen;
+          this.websock.onmessage = this.websocketonmessage;
+          this.websock.onclose = this.websocketclose;
+          this.websock.onerror = this.websocketerror;
+        }else{
+          let shape = 1;
+          this.websock.send(shape + ',' + _this.latitudeLeft + ',' + _this.longitude1Right + ',' + _this.latitude1Right + ',' + _this.longitudeLeft);
+          this.websock.onopen = this.websocketopen;
+          this.websock.onmessage = this.websocketonmessage;
+          this.websock.onclose = this.websocketclose;
+          this.websock.onerror = this.websocketerror;
+        }
 
+      },
+      websocketopen() { //打开
+        console.log("WebSocket连接成功")
+      },
+      websocketonmessage(data) { //数据接收
+        this.chartsData = JSON.parse(data.data).rows;
+        this.auto();
+        this.drawLine();
+      }
+    },
     mounted() {
       // console.log(mapj);
+      let _this = this;
       this.initMap();
       this.getCityData(mapj);
+      // wenscoket
+      const wsuri = "ws://192.168.2.162:8081/websocket/0"; //ws地址
+      if('WebSocket' in window) {
+        this.websock = new WebSocket(wsuri);
+        console.log(this.websock);
+      }else if('MozWebSocket' in window){
+        this.websock = new MozWebSocket(wsuri);
+      }
+      else{
+        alert('该浏览器不支持wenstocket');
+        return false;
+      }
+     /* HostList(this.listQuary.type).then(res => {
+        _this.listQuary.ip = res[0];
+        _this.oldIp = res[0];
+        _this.ipList = res;
+        _this.initWebpack()
+      })*/
+    },
+    created(){
+
+
     }
   }
 </script>
@@ -482,5 +583,30 @@
   .el-select{
     padding-right: 10px;
   }
+.esignal{
+  width: 100%;
+  height: 510px;
+  .onsignal{
+    width: 50%;
+    height: 100%;
+    float: left;
+  }
+}
+</style>
+<style>
+  #signal .el-dialog{
+    width: 1274px;
+    height: 615px;
+  }
+  #signal .el-dialog__header{
+    background: #49B9BC;
 
+  }
+  #signal .el-dialog__title{
+    color:#fff;
+    font-size: 20px;
+  }
+  .el-dialog__headerbtn{
+    color: #ffffff;
+  }
 </style>

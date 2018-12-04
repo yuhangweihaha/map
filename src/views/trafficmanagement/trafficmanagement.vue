@@ -10,7 +10,8 @@
               :label="item.gatewayNo"
               :value="item.gatewayNo">
             </el-option>
-          </el-select></div>
+          </el-select>
+        </div>
         <div class="blocks">
           <el-button style="height: 38px;width: 66px" @click="handleCheck()">查看</el-button>
 
@@ -19,7 +20,7 @@
       </div>
     </header>
     <div class="content">
-      <el-table :data="yuyu" border fit highlight-current-row  height="500px" style="width: 100%;">
+      <el-table :data="yuyu" border fit highlight-current-row height="500px" style="width: 100%;">
         <el-table-column align="center" label="序号" type="index" width="50">
         </el-table-column>
         <el-table-column align="center" label="传感器编号">
@@ -79,27 +80,37 @@
         </el-table-column>
       </el-table>
       <div class="pagination-container">
-        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="page" :page-sizes="[5,10,20,50]" :page-size="limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
+        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="page"
+                       :page-sizes="[5,10,20,50]" :page-size="limit" layout="total, sizes, prev, pager, next, jumper"
+                       :total="total">
         </el-pagination>
       </div>
     </div>
+    <footer>
+      <ul>
+        <li><span><img src="../../icon/flow/pic_flow5.png" alt=""></span><span style="line-height: 34px">在线</span></li>
+        <li><span><img src="../../icon/flow/pic_flow1.png" alt=""></span><span style="line-height: 34px">警告</span></li>
+        <li><span><img src="../../icon/flow/pic_flow3.png" alt=""></span><span style="line-height: 34px">失联</span></li>
+      </ul>
+    </footer>
   </div>
 </template>
 <script>
-  import { formatDate } from '@/common/js/date.js'
+  import {formatDate} from '@/common/js/date.js'
+
   export default {
     name: '',
     data() {
       return {
         time: '3',
-        yuyu:[],
-        value:'1',
-        forMatterDate: function(datetime) {
+        yuyu: [],
+        value: '',
+        forMatterDate: function (datetime) {
           return formatDate(new Date(datetime), 'yyyy-MM-dd hh:mm:ss');
         },
         times: '',
-        starttime:'',
-        endtime:'',
+        starttime: '',
+        endtime: '',
         limit: 10,
         page: 1,
         total: null,
@@ -109,30 +120,55 @@
       indexMethod(index) {
         return index * 2;
       },
-      flow(){
-        this.$http.get('holecoverServer/alarmHistory',{
-          startTime: this.starttime,
-          endTime: this.endtime,
-          sensorId: this.value,
-          limit:this.limit,
-          page:this.page
+      // flow(){
+      //   this.$http.get('holecoverServer/alarmHistory',{
+      //     startTime: this.starttime,
+      //     endTime: this.endtime,
+      //     sensorId: this.value,
+      //     limit:this.limit,
+      //     page:this.page
+      //   })
+      //     .then(res => {
+      //       // this.yuyu = res.Secondcover;
+      //       if(res.status === 200 || res.status === '200'){
+      //         this.yuyu = res.data.rows;
+      //         console.log(res,'rwwwwwesres');
+      //         this.total = res.data.total;
+      //         this.value = res.data.total.sensorNo;
+      //       }else{
+      //         alert('接口错误')
+      //       }
+      //     });
+      // },
+      flow() {
+        this.$http.get('holecoverServer/flowPackage', {
+          limit: this.limit,
+          page: this.page
         })
           .then(res => {
             // this.yuyu = res.Secondcover;
-            if(res.status === 200 || res.status === '200'){
+            if (res.status === 200 || res.status === '200') {
+            console.log(res.data.rows,'resresres')
               this.yuyu = res.data.rows;
-              console.log(res,'rwwwwwesres');
-              this.total = res.data.total;
-              this.value = res.data.total.sensorNo;
-            }else{
+            } else {
               alert('接口错误')
             }
           });
+
       },
-      handleCheck(){
-        this.starttime = this.times[0].getTime();
-        this.endtime = this.times[1].getTime();
-        this.flow();
+      handleCheck() {
+        this.$http.get('holecoverServer/flowPackageByNo', {
+          sensorNo: this.value,
+        })
+          .then(res => {
+            // this.yuyu = res.Secondcover;
+            if (res.status === 200 || res.status === '200') {
+              console.log(res.data.rows,'sensorNosensorNo')
+              this.yuyu = res.data.rows;
+            } else {
+              alert('接口错误')
+            }
+          });
       },
       handleSizeChange(val) {
         this.limit = val;
@@ -166,17 +202,21 @@
     position: relative;
     padding-left: 36px;
   }
-  header .block{
+
+  header .block {
     float: left;
     margin-left: 20px;
   }
-  header .blocks{
+
+  header .blocks {
     float: right;
     margin-left: 20px;
   }
-  header .number{
+
+  header .number {
     float: left;
   }
+
   header .title img {
     height: 26px;
     width: 32px;
@@ -188,6 +228,7 @@
   header .param-content {
     float: right;
   }
+
   header .param-content > label {
     margin-left: 10px;
   }
@@ -216,19 +257,57 @@
     height: calc(100% - 220px);
     overflow-x: hidden;
   }
+
   .el-pagination {
     margin-top: 30px;
     margin-left: 50%;
   }
+
   @media (min-width: 1600px) {
     .el-pagination {
       margin-top: 30px;
       margin-left: 46%;
     }
   }
+
+  footer {
+    width: 100%;
+    height: 50px;
+    background: rgba(243, 243, 243, 1);
+    bottom: 48px;
+    position: relative;
+    ul {
+      width: 25%;
+      height: 50px;
+      float: right;
+      padding: 0;
+      margin: 0;
+      li {
+        float: left;
+        width: 33.333%;
+        height: 100%;
+        list-style: none;
+        text-align: right;
+        line-height: 42px;
+        font-size: 14px;
+        span {
+          width: 29px;
+          height: 23px;
+          display: inline-block;
+          margin: 6px 5px;
+          vertical-align : middle;
+          img {
+            width: 100%;
+            height: 100%;
+          }
+        }
+      }
+
+    }
+  }
 </style>
 <style>
-  header .param-content button{
+  header .param-content button {
     width: 66px;
     height: 40px;
   }

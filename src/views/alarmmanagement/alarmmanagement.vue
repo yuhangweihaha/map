@@ -22,62 +22,62 @@
         </el-table-column>
         <el-table-column align="center" label="传感器编号">
           <template slot-scope="scope">5
-            <span>{{scope.row.date}}</span>
+            <span>{{scope.row.sensorNo}}</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="集控器编号">
           <template slot-scope="scope">
-            <span>{{scope.row.name}}</span>
+            <span>{{scope.row.gatewayNo}}</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="告警状态">
           <template slot-scope="scope">
-            <span>{{scope.row.alarmstate}}</span>
+            <span>{{scope.row.alarmStatus}}</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="集控器信号强度">
           <template slot-scope="scope">
-            <span>{{scope.row.Centralizer}}dBm</span>
+            <span>{{scope.row.controllerSignalStrength}}dBm</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="集控器电压">
           <template slot-scope="scope">
-            <span>{{scope.row.collectorvoltage}}V</span>
+            <span>{{scope.row.voltage}}V</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="工作模式">
           <template slot-scope="scope">
-            <span>{{scope.row.workingmode}}</span>
+            <span>{{scope.row.workingModel}}</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="连接状态">
           <template slot-scope="scope">
-            <span>{{scope.row.quantity}}</span>
+            <span>{{scope.row.connStatus}}</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="触发器电量">
           <template slot-scope="scope">
-            <span>{{scope.row.triggerpower}}</span>
+            <span>{{scope.row.sensorPower}}</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="经度">
           <template slot-scope="scope">
-            <span>{{scope.row.long}}</span>
+            <span>{{scope.row.longitude}}</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="维度">
           <template slot-scope="scope">
-            <span>{{scope.row.lat}}</span>
+            <span>{{scope.row.latitude}}</span>
           </template>
         </el-table-column>
-        <el-table-column align="center" label="告警时间">
+        <el-table-column align="center" label="告警时间" width="150%">
           <template slot-scope="scope">
-            <span>{{scope.row.time}}</span>
+            <span>{{forMatterDate(scope.row.insertTime)}}</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="城市">
           <template slot-scope="scope">
-            <span>{{scope.row.City}}</span>
+            <span>{{scope.row.city}}</span>
           </template>
         </el-table-column>
       </el-table>
@@ -90,6 +90,7 @@
   </div>
 </template>
 <script>
+  import { formatDate } from '@/common/js/date.js'
   export default {
     name: '',
     data() {
@@ -101,6 +102,9 @@
         total: null,
         timer: null,
         yuyu:[],
+        forMatterDate: function(datetime) {
+          return formatDate(new Date(datetime), 'yyyy-MM-dd hh:mm:ss');
+        },
       }
     },
     methods: {

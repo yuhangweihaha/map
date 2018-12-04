@@ -187,10 +187,10 @@
         WellColor: '#22a36b',
         CallThePolice: 0, /*警报*/
         coordinate1: 116.500004,
-        coordinate2: 40.000002,
+        coordinate2: 40.059596,
         policespan: true,
-        one: '116.504000',
-        two: '40.020000',
+        one: '116.645291',
+        two: '40.059399',
         scales: '1公里',
         sha: '',
         zi: '',

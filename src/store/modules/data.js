@@ -54,8 +54,9 @@ const state = {
 		children: []
 	}, {
 		name: '系统设置',
-		url: '',
-		children: [{
+		url: 'systemsetup',
+    children: []
+	/*	children: [{
 			name: '地图设置',
 			url: 'systemsetup'
 		}, {
@@ -64,7 +65,7 @@ const state = {
 		}, {
 			name: '自定义项',
 			url: 'userdefineditems'
-		}]
+		}]*/
 	}, {
 		name: '状态总览',
 		url: 'stateoverview',

@@ -11,8 +11,8 @@ import stateoverview from '@/views/stateoverview/stateoverview'  //状态总览
 import statisticalanalysis from '@/views/statisticalanalysis/statisticalanalysis'  //电量统计
 import signalstatistics from '@/views/statisticalanalysis/signalstatistics'
 import systemsetup from '@/views/systemsetup/mapsettings'   //地图设置
-import companysetup from '@/views/systemsetup/companysetup'   //公司设置
-import userdefineditems from '@/views/systemsetup/userdefineditems'   //自定义项
+/*import companysetup from '@/views/systemsetup/companysetup'   //公司设置
+import userdefineditems from '@/views/systemsetup/userdefineditems'   //自定义项*/
 import trafficmanagement from '@/views/trafficmanagement/trafficmanagement'   //流量管理
 import dataquery from '@/views/dataquery/dataquery' //数据查询
 import historicaldata from '@/views/dataquery/historicaldata' //历史查询
@@ -76,7 +76,7 @@ routes: [
         name: 'selectivecollector',
         component: selectivecollector
       },
-      //公司设置
+     /* //公司设置
       {
         path: '/companysetup',
         name: 'companysetup',
@@ -87,7 +87,7 @@ routes: [
         path: '/userdefineditems',
         name: 'userdefineditems',
         component: userdefineditems
-      },
+      },*/
       {
         path: '/trafficmanagement',
         name: 'trafficmanagement',

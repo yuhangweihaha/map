@@ -177,6 +177,9 @@
       handleCheck(){
           this.starttime = this.times[0].getTime();
           this.endtime = this.times[1].getTime();
+          console.log(this.starttime);
+          console.log(this.endtime);
+          console.log(this.value);
           this.auto();
       },
       handleSizeChange(val) {
