@@ -2,7 +2,7 @@ import axios from 'axios'
 import vue from 'vue'
 
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
-
+axios.defaults.headers.get['Content-Type'] = 'application/x-www-form-urlencoded'
 // 请求拦截器
 axios.interceptors.request.use(function(config) {
   return config;
@@ -28,9 +28,24 @@ export function fetch(url, params) {
       })
   })
 }
-
+export function fetchGet(url, param) {
+  return new Promise((resolve, reject) => {
+    axios.get(url, {params: param})
+      .then(response => {
+        resolve(response.data)
+      }, err => {
+        reject(err)
+      })
+      .catch((error) => {
+        reject(error)
+      })
+  })
+}
 export default {
-  post(url, params) {
+  post:function (url, params) {
     return fetch(url, params);
+  },
+  get:function (url, params) {
+    return fetchGet(url, params);
   }
 }

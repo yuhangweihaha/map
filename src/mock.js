@@ -3,144 +3,20 @@ const Mock = require('mockjs');
 // 获取 mock.Random 对象
 const Random = Mock.Random;
 // mock一组数据
-const produceNewsData = function () {
-  //所有
-  let articles = [];
-  for (let i = 0; i < 16; i++) {
-    let newArticleObject = {
-      id: Random.increment(), //详细列表id
-      date: Random.natural(0, 1000000000), //  设备编号
-      name: Random.natural(0, 3), // Random.cname() 0-3状态
-      address: Random.date() + ' ' + Random.time(), //最新上报时间
-      names: Random.natural(0, 10000), // 井盖编号
-      Manufacturer: Random.ctitle(3, 8),  //生产厂家
-      Installation: Random.ctitle(3, 7),   //安装单位s
-      ManagementUnit: Random.ctitle(3, 9),  //管理单位
-      installDate: Random.date(), // 安装日期
-      ServiceLife: Random.natural(1, 100), // 使用寿命
-      coordinateX: Random.float(116, 117, 6, 5), //坐标x
-      coordinateY: Random.float(40, 41, 6, 5), //坐标Y
-      selectPerson: []
-    };
-    articles.push(newArticleObject)
-  }
-  //警报
-  let aiu = [];
-  for (let i = 0; i < 4; i++) {
-    let newArticleObject = {
-      id: Random.increment(), //详细列表id
-      date: Random.natural(0, 1000000000), //  设备编号
-      name: Random.natural(3, 3), // Random.cname() 状态（全部是警告）
-      address: Random.date() + ' ' + Random.time(), //最新上报时间
-      names: Random.natural(0, 10000), // 井盖编号
-      Manufacturer: Random.ctitle(3, 8),  //生产厂家
-      Installation: Random.ctitle(3, 7),   //安装单位
-      ManagementUnit: Random.ctitle(3, 9),  //管理单位
-      installDate: Random.date(), // 安装日期
-      ServiceLife: Random.natural(1, 100), // 使用寿命
-      coordinateX: Random.float(116, 116, 6, 5), //坐标x
-      coordinateY: Random.float(40, 40, 6, 5), //坐标Y
-      selectPerson: []
-    };
-    aiu.push(newArticleObject)
-  }
-  // 离线
-  let Offline = [];
-  for (let i = 0; i < 10; i++) {
-    let newArticleObject = {
-      id: Random.increment(), //详细列表id
-      date: Random.natural(0, 1000000000), //  设备编号
-      name: Random.natural(1, 1), // Random.cname() 状态（离线）
-      address: Random.date() + ' ' + Random.time(), //最新上报时间
-      names: Random.natural(0, 10000), // 井盖编号
-      Manufacturer: Random.ctitle(3, 8),  //生产厂家
-      Installation: Random.ctitle(3, 7),   //安装单位
-      ManagementUnit: Random.ctitle(3, 9),  //管理单位
-      installDate: Random.date(), // 安装日期
-      ServiceLife: Random.natural(1, 100), // 使用寿命
-      coordinateX: Random.float(116, 117, 6, 5), //坐标x
-      coordinateY: Random.float(40, 41, 6, 5), //坐标Y
-      selectPerson: []
-    };
-    Offline.push(newArticleObject)
-  }
-  //超时
-  let overtime = [];
-  for (let i = 0; i < 6; i++) {
-    let newArticleObject = {
-      id: Random.increment(), //详细列表id
-      date: Random.natural(0, 1000000000), //  设备编号
-      name: Random.natural(2, 2), // Random.cname() 状态（超时）
-      address: Random.date() + ' ' + Random.time(), //最新上报时间
-      names: Random.natural(0, 10000), // 井盖编号
-      Manufacturer: Random.ctitle(3, 8),  //生产厂家
-      Installation: Random.ctitle(3, 7),   //安装单位
-      ManagementUnit: Random.ctitle(3, 9),  //管理单位
-      installDate: Random.date(), // 安装日期
-      ServiceLife: Random.natural(1, 100), // 使用寿命
-      coordinateX: Random.float(116, 117, 6, 5), //坐标x
-      coordinateY: Random.float(40, 41, 6, 5), //坐标Y
-      selectPerson: []
-    };
-    overtime.push(newArticleObject)
-  }
-  return {
-    articles: articles,
-    aiu: aiu,
-    Offline: Offline,
-    overtime: overtime
-  }
-};
 const Warningcovers = function () {
   let Secondcover = [];
-  for (let i = 0; i < 1; i++) {
     let Warning = {
-      date: Random.natural(0, 500),// 设备编号
-      date1: Random.natural(0, 500),// 设备编号
-      date2: Random.natural(0, 500),// 设备编号
-      date3: Random.natural(0, 500),// 设备编号
-      name: Random.natural(0, 100), // 井盖编号
-      Manufacturer: Random.ctitle(3, 8),  //生产厂家
-      address: Random.ctitle(3, 7),   //安装单位
-      ManagementUnit: Random.ctitle(3, 9),  //管理单位
-      installDate: Random.ctitle(3, 7),   //安装单位
-      ServiceLife: Random.natural(1, 30), // 使用寿命
-      coordinateX: Random.float(1, 9, 2, 1), //坐标x
-      coordinateY: Random.float(1, 9, 2, 1) //坐标Y
+      date: Random.range(100, 300, 5),// 设备编号
+
+
     };
     Secondcover.push(Warning)
-  }
 
   return {
     Secondcover: Secondcover
   }
 };
-//告警总览mock
-const alarmoverview = function () {
-  let Secondcover = [];
-  for (let i = 0; i < 16; i++) {
-    let Warning = {
-      date: Random.natural(0, 5000),  //传感器编号
-      name: Random.natural(0, 50000), //集控器编号
-      City:Random.city(),        //地点
-      time:Random.date() + ' ' + Random.time(),  //时间
-      lat:Random.float(39, 41, 6, 5),  //纬度
-      long:Random.float(115, 117, 6, 5), //经度
-      quantity:Random.boolean(), //连接状态
-      triggerpower:Random.natural(0, 100), //触发器电量
-      workingmode:Random.word(), //工作模式
-      collectorvoltage:Random.natural(0, 100), //集控器电压
-      Centralizer:Random.natural(-100, 100), //集控器信号强度
-      alarmstate:Random.natural(0, 1),  //告警状态
-    };
-    Secondcover.push(Warning)
-  }
 
-  return {
-    Secondcover: Secondcover
-  }
-};
 // Mock.mock( url, post/get , 返回的数据)；
-Mock.mock('/wei/index', 'get', produceNewsData);
-Mock.mock('/test/user', 'post', Warningcovers);
-Mock.mock('/baidu/user', 'get', alarmoverview);
+Mock.mock('/wei/index', 'get', Warningcovers);
+
